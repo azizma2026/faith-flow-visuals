@@ -1,40 +1,44 @@
 
 import React from "react";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface PageNavigationProps {
   totalPages: number;
   currentPage: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (pageIndex: number) => void;
   className?: string;
 }
 
-const PageNavigation: React.FC<PageNavigationProps> = ({
-  totalPages,
-  currentPage,
+const PageNavigation: React.FC<PageNavigationProps> = ({ 
+  totalPages = 4, // Updated to 4 pages by default
+  currentPage = 0, 
   onPageChange,
   className
 }) => {
   return (
-    <div className={cn("flex justify-center items-center space-x-2 mt-6", className)}>
-      {Array.from({ length: totalPages }, (_, i) => (
-        <motion.button
-          key={i}
-          onClick={() => onPageChange(i)}
-          className={cn(
-            "w-2 h-2 rounded-full transition-all duration-300",
-            currentPage === i
-              ? "bg-islamic-gold w-4"
-              : "bg-gray-300 hover:bg-gray-400"
-          )}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-          animate={currentPage === i ? { width: 16 } : { width: 8 }}
-          aria-label={`Go to page ${i + 1}`}
-        />
-      ))}
-    </div>
+    <motion.div 
+      className={cn("flex justify-center mt-6", className)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
+      <div className="flex space-x-2">
+        {Array.from({ length: totalPages }).map((_, index) => (
+          <button 
+            key={index}
+            onClick={() => onPageChange(index)}
+            className={cn(
+              "w-2.5 h-2.5 rounded-full transition-all",
+              currentPage === index 
+                ? "bg-islamic-gold w-6" 
+                : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
+            )}
+            aria-label={`Go to page ${index + 1}`}
+          />
+        ))}
+      </div>
+    </motion.div>
   );
 };
 

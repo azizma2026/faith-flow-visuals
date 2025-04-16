@@ -70,7 +70,7 @@ const Index = () => {
           <AnimatedIconGrid currentPage={currentPage} />
           
           <PageNavigation 
-            totalPages={3} 
+            totalPages={4} 
             currentPage={currentPage} 
             onPageChange={handlePageChange} 
           />

@@ -2,8 +2,13 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 import FeatureIcon from "./FeatureIcon";
-import { Book, Clock, Compass, BookOpen, BookMarked, FileText, Headphones, Radio, Map, Heart, Calendar, Settings, Tv, Music, Activity, Landmark } from "lucide-react";
+import { 
+  Book, Clock, Compass, BookOpen, BookMarked, FileText, 
+  Headphones, Radio, Map, Heart, Calendar, Settings, 
+  Tv, Music, Activity, Landmark, BarChart, Gift, Quote, Share 
+} from "lucide-react";
 
 interface AnimatedIconGridProps {
   currentPage: number;
@@ -164,19 +169,75 @@ const FEATURE_PAGES = [
       color: "bg-islamic-light-blue",
       onClick: () => console.log("Settings clicked")
     }
+  ],
+  // Page 4 - New features
+  [
+    {
+      title: "Quran Engagement",
+      icon: BarChart,
+      color: "bg-islamic-green",
+      path: "/quran-engagement"
+    },
+    {
+      title: "Sadqa Jaria",
+      icon: Gift,
+      color: "bg-islamic-blue",
+      path: "/sadqa-jaria"
+    },
+    {
+      title: "Daily Verse",
+      icon: Quote,
+      color: "bg-islamic-light-green",
+      path: "/daily-verse"
+    },
+    {
+      title: "Share App",
+      icon: Share,
+      color: "bg-islamic-light-blue",
+      onClick: () => console.log("Share App clicked")
+    },
+    {
+      title: "Favorite Verses",
+      icon: Heart,
+      color: "bg-islamic-green",
+      onClick: () => console.log("Favorite Verses clicked")
+    },
+    {
+      title: "Audio Library",
+      icon: Headphones,
+      color: "bg-islamic-blue",
+      onClick: () => console.log("Audio Library clicked")
+    },
+    {
+      title: "Community",
+      icon: Activity,
+      color: "bg-islamic-light-green",
+      onClick: () => console.log("Community clicked")
+    },
+    {
+      title: "Educational",
+      icon: BookOpen,
+      color: "bg-islamic-light-blue",
+      onClick: () => console.log("Educational clicked")
+    }
   ]
 ];
 
 const AnimatedIconGrid: React.FC<AnimatedIconGridProps> = ({ currentPage = 0, className }) => {
   const features = FEATURE_PAGES[currentPage] || [];
   const [expandedIcon, setExpandedIcon] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-  const handleIconClick = (index: number, onClick: () => void) => {
+  const handleIconClick = (index: number, onClick?: () => void, path?: string) => {
     if (expandedIcon === index) {
       setExpandedIcon(null);
     } else {
       setExpandedIcon(index);
-      onClick();
+      if (path) {
+        navigate(path);
+      } else if (onClick) {
+        onClick();
+      }
     }
   };
 
@@ -224,7 +285,7 @@ const AnimatedIconGrid: React.FC<AnimatedIconGridProps> = ({ currentPage = 0, cl
             title={feature.title}
             icon={feature.icon}
             color={feature.color}
-            onClick={() => handleIconClick(index, feature.onClick)}
+            onClick={() => handleIconClick(index, feature.onClick, feature.path)}
             className={expandedIcon === index ? "ring-2 ring-islamic-gold" : ""}
           />
         </motion.div>
