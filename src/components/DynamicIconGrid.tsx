@@ -233,7 +233,7 @@ const DynamicIconGrid: React.FC<DynamicIconGridProps> = ({ currentPage = 0, clas
 
   const handleIconClick = (module: ModuleType) => {
     // These modules are already implemented
-    const implementedModules = ["sadqaJaria", "dailyVerse", "quranEngagement"];
+    const implementedModules = ["quran", "hadith", "sadqaJaria", "dailyVerse", "quranEngagement"];
     
     if (implementedModules.includes(module)) {
       setActiveModule(module);
