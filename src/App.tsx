@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import QuranEngagement from "./pages/QuranEngagement";
 import SadqaJaria from "./pages/SadqaJaria";
 import DailyVerse from "./pages/DailyVerse";
+import ModuleWrapper from "./components/ModuleWrapper";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ModuleWrapper />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

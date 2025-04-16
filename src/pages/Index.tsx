@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import PrayerTimer from "@/components/PrayerTimer";
-import AnimatedIconGrid from "@/components/AnimatedIconGrid";
+import DynamicIconGrid from "@/components/DynamicIconGrid";
 import PageNavigation from "@/components/PageNavigation";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -67,7 +67,7 @@ const Index = () => {
             Islamic Resources
           </h2>
           
-          <AnimatedIconGrid currentPage={currentPage} />
+          <DynamicIconGrid currentPage={currentPage} />
           
           <PageNavigation 
             totalPages={4} 
