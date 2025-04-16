@@ -6,7 +6,9 @@ import PrayerTimer from "@/components/PrayerTimer";
 import AnimatedIconGrid from "@/components/AnimatedIconGrid";
 import PageNavigation from "@/components/PageNavigation";
 import DarkModeToggle from "@/components/DarkModeToggle";
+import LanguageSelector from "@/components/LanguageSelector";
 import { getGregorianDate, getHijriDate, getCurrentTime } from "@/utils/dateUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -14,6 +16,7 @@ const Index = () => {
   const hijriDate = getHijriDate();
   const gregorianDate = getGregorianDate();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { currentLanguage } = useLanguage();
   
   // Update time every minute
   useEffect(() => {
@@ -43,6 +46,7 @@ const Index = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      dir={currentLanguage.direction}
     >
       <motion.div 
         className="max-w-lg mx-auto"
@@ -59,7 +63,7 @@ const Index = () => {
         <main className="px-4 py-6">
           <PrayerTimer className="mb-6" />
           
-          <h2 className="text-xl font-bold mb-4 text-islamic-dark-navy">
+          <h2 className="text-xl font-bold mb-4 text-islamic-dark-navy dark:text-white">
             Islamic Resources
           </h2>
           
@@ -72,6 +76,7 @@ const Index = () => {
           />
         </main>
         <DarkModeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
+        <LanguageSelector />
       </motion.div>
     </motion.div>
   );
