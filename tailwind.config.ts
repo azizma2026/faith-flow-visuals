@@ -61,6 +61,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				islamic: {
+					green: '#1D645D',
+					'light-green': '#4AA183',
+					blue: '#0D3B66',
+					'light-blue': '#3C91E6',
+					gold: '#D9A21B',
+					beige: '#F3E9DC',
+					sand: '#E2D1C3',
+					'dark-navy': '#1A1F2C'
 				}
 			},
 			borderRadius: {
