@@ -13,6 +13,11 @@ export type ModuleType =
   | 'sadqaJaria'
   | 'dailyVerse'
   | 'quranEngagement'
+  | 'islamicThemes'
+  | 'islamicQuiz'
+  | 'salahGuide'
+  | 'certificates'
+  | 'tipDeveloper'
   | 'settings';
 
 interface NavigationState {

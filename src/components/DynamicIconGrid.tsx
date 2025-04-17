@@ -1,7 +1,12 @@
 
 import React from "react";
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
-import { Book, Clock, Compass, BookOpen, BookMarked, FileText, Headphones, Radio, Map, Heart, Calendar, Settings, Tv, Music, Activity, Landmark } from "lucide-react";
+import { 
+  Book, Clock, Compass, BookOpen, BookMarked, FileText, 
+  Headphones, Radio, Map, Heart, Calendar, Settings, 
+  Tv, Music, Activity, Landmark, Palette, HelpCircle, 
+  Award, Coins, Gift, LayoutDashboard
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import FeatureIcon from "./FeatureIcon";
 import { useToast } from "./ui/use-toast";
@@ -223,6 +228,57 @@ const FEATURE_PAGES = [
       color: "bg-islamic-light-blue",
       module: "channels"
     }
+  ],
+  // Page 5 - More Islamic Apps
+  [
+    {
+      title: "Islamic Themes",
+      icon: Palette,
+      color: "bg-islamic-green",
+      module: "islamicThemes"
+    },
+    {
+      title: "Islamic Quiz",
+      icon: HelpCircle,
+      color: "bg-islamic-blue",
+      module: "islamicQuiz"
+    },
+    {
+      title: "3D Salah Guide",
+      icon: Compass,
+      color: "bg-islamic-light-green",
+      module: "salahGuide"
+    },
+    {
+      title: "Certificates",
+      icon: Award,
+      color: "bg-islamic-light-blue",
+      module: "certificates"
+    },
+    {
+      title: "Tip Developer",
+      icon: Gift,
+      color: "bg-islamic-green",
+      module: "tipDeveloper"
+    },
+    {
+      title: "Sadqa Jaria Pool",
+      icon: Coins,
+      color: "bg-islamic-blue",
+      module: "sadqaJaria"
+    },
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      color: "bg-islamic-light-green",
+      module: "home"
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      color: "bg-islamic-light-blue",
+      module: "settings"
+    }
   ]
 ];
 
@@ -233,7 +289,7 @@ const DynamicIconGrid: React.FC<DynamicIconGridProps> = ({ currentPage = 0, clas
 
   const handleIconClick = (module: ModuleType) => {
     // These modules are already implemented
-    const implementedModules = ["quran", "hadith", "sadqaJaria", "dailyVerse", "quranEngagement"];
+    const implementedModules = ["quran", "hadith", "sadqaJaria", "dailyVerse", "quranEngagement", "home"];
     
     if (implementedModules.includes(module)) {
       setActiveModule(module);

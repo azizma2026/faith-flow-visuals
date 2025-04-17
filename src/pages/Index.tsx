@@ -40,6 +40,18 @@ const Index = () => {
     }
   };
 
+  // Page titles based on current page
+  const getPageTitle = () => {
+    switch(currentPage) {
+      case 0: return "Islamic Resources";
+      case 1: return "Additional Resources";
+      case 2: return "Live & Community";
+      case 3: return "Engagement Features";
+      case 4: return "More Islamic Apps";
+      default: return "Islamic Resources";
+    }
+  };
+
   return (
     <motion.div 
       className={`min-h-screen ${isDarkMode ? 'dark bg-islamic-dark-navy' : 'mosque-silhouette-bg'}`}
@@ -64,13 +76,13 @@ const Index = () => {
           <PrayerTimer className="mb-6" />
           
           <h2 className="text-xl font-bold mb-4 text-islamic-dark-navy dark:text-white">
-            Islamic Resources
+            {getPageTitle()}
           </h2>
           
           <DynamicIconGrid currentPage={currentPage} />
           
           <PageNavigation 
-            totalPages={4} 
+            totalPages={5} 
             currentPage={currentPage} 
             onPageChange={handlePageChange} 
           />

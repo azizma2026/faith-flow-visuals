@@ -15,6 +15,11 @@ const SadqaJariaModule = lazy(() => import('@/pages/SadqaJaria'));
 const DailyVerseModule = lazy(() => import('@/pages/DailyVerse'));
 const QuranEngagementModule = lazy(() => import('@/pages/QuranEngagement'));
 const SettingsModule = lazy(() => import('@/modules/SettingsModule'));
+const IslamicThemesModule = lazy(() => import('@/modules/IslamicThemesModule'));
+const IslamicQuizModule = lazy(() => import('@/modules/IslamicQuizModule'));
+const SalahGuideModule = lazy(() => import('@/modules/SalahGuideModule'));
+const CertificatesModule = lazy(() => import('@/modules/CertificatesModule'));
+const TipDeveloperModule = lazy(() => import('@/modules/TipDeveloperModule'));
 
 const moduleComponents: Record<ModuleType, React.ComponentType> = {
   home: () => null,
@@ -28,7 +33,12 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   sadqaJaria: SadqaJariaModule,
   dailyVerse: DailyVerseModule,
   quranEngagement: QuranEngagementModule,
-  settings: SettingsModule
+  settings: SettingsModule,
+  islamicThemes: IslamicThemesModule,
+  islamicQuiz: IslamicQuizModule,
+  salahGuide: SalahGuideModule,
+  certificates: CertificatesModule,
+  tipDeveloper: TipDeveloperModule
 };
 
 export const ModuleWrapper: React.FC = () => {
