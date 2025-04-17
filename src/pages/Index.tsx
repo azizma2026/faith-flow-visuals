@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Header from "@/components/Header";
 import PrayerTimer from "@/components/PrayerTimer";
 import DynamicIconGrid from "@/components/DynamicIconGrid";
@@ -40,8 +41,7 @@ const Index = () => {
     }
   };
 
-  // Page titles based on current page
-  const getPageTitle = () => {
+  const getSectionTitle = () => {
     switch(currentPage) {
       case 0: return "Islamic Resources";
       case 1: return "Additional Resources";
@@ -61,7 +61,7 @@ const Index = () => {
       dir={currentLanguage.direction}
     >
       <motion.div 
-        className="max-w-lg mx-auto"
+        className="max-w-lg mx-auto pb-24"
         initial={{ y: 20 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -75,20 +75,39 @@ const Index = () => {
         <main className="px-4 py-6">
           <PrayerTimer className="mb-6" />
           
-          <h2 className="text-xl font-bold mb-4 text-islamic-dark-navy dark:text-white">
-            {getPageTitle()}
-          </h2>
-          
-          <DynamicIconGrid currentPage={currentPage} />
-          
+          <Accordion type="single" collapsible className="mb-6">
+            <AccordionItem value="general">
+              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white">
+                General
+              </AccordionTrigger>
+              <AccordionContent>
+                <DynamicIconGrid currentPage={0} className="mt-4" />
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="more-apps">
+              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white">
+                More Islamic Apps
+              </AccordionTrigger>
+              <AccordionContent>
+                <DynamicIconGrid currentPage={4} className="mt-4" />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
           <PageNavigation 
             totalPages={5} 
             currentPage={currentPage} 
             onPageChange={handlePageChange} 
           />
         </main>
-        <DarkModeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
-        <LanguageSelector />
+
+        <div className="fixed bottom-4 left-4">
+          <DarkModeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
+        </div>
+        <div className="fixed bottom-4 right-4">
+          <LanguageSelector />
+        </div>
       </motion.div>
     </motion.div>
   );
