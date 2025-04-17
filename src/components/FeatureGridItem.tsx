@@ -15,7 +15,19 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
 
   const handleIconClick = (module: ModuleType) => {
     // These modules are already implemented
-    const implementedModules = ["quran", "hadith", "sadqaJaria", "dailyVerse", "quranEngagement", "home"];
+    const implementedModules = [
+      "quran", 
+      "hadith", 
+      "sadqaJaria", 
+      "dailyVerse", 
+      "quranEngagement", 
+      "home",
+      "islamicThemes",
+      "islamicQuiz",
+      "salahGuide",
+      "certificates",
+      "tipDeveloper"
+    ];
     
     if (implementedModules.includes(module)) {
       setActiveModule(module);
