@@ -18,6 +18,12 @@ export type ModuleType =
   | 'salahGuide'
   | 'certificates'
   | 'tipDeveloper'
+  | 'contact'
+  | 'notifications'
+  | 'share'
+  | 'rate'
+  | 'hajjGuide'
+  | 'knowledgeTests'
   | 'settings';
 
 interface NavigationState {

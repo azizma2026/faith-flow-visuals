@@ -1,72 +1,105 @@
-
 import { 
   Book, Clock, Compass, BookOpen, BookMarked, FileText, 
   Headphones, Radio, Map, Heart, Calendar, Settings, 
   Tv, Music, Activity, Landmark, Palette, HelpCircle, 
-  Award, Coins, Gift, LayoutDashboard
+  Award, Coins, Gift, LayoutDashboard, Cube, BookCheck,
+  MessagesSquare, BellRing, Share2, Star, GraduationCap,
+  Mosque, PieChart
 } from "lucide-react";
 import { ModuleType } from "@/stores/navigationStore";
 
 export interface FeatureItem {
   title: string;
-  icon: any; // Using any here because the Lucide icon type is complex
+  icon: any;
   color: string;
   module: ModuleType;
+  isPremium?: boolean;
 }
 
-// Feature icon data for all pages
 export const FEATURE_PAGES: FeatureItem[][] = [
-  // Page 1 - Main features
+  // Page 0 - General Features
   [
     {
-      title: "Quran",
-      icon: Book,
+      title: "Contact Us",
+      icon: MessagesSquare,
       color: "bg-islamic-green",
-      module: "quran"
+      module: "contact"
     },
     {
-      title: "Prayer Times",
-      icon: Clock,
+      title: "Notifications",
+      icon: BellRing,
       color: "bg-islamic-blue",
-      module: "prayerTimes"
+      module: "notifications"
     },
     {
-      title: "Qibla",
-      icon: Compass,
+      title: "Share App",
+      icon: Share2,
       color: "bg-islamic-light-green",
-      module: "qibla"
+      module: "share"
     },
     {
-      title: "Hadith",
-      icon: BookOpen,
+      title: "Rate App",
+      icon: Star,
       color: "bg-islamic-light-blue",
-      module: "hadith"
-    },
-    {
-      title: "Hifz",
-      icon: BookMarked,
-      color: "bg-islamic-green",
-      module: "quran"
-    },
-    {
-      title: "Supplications",
-      icon: FileText,
-      color: "bg-islamic-blue",
-      module: "duas"
-    },
-    {
-      title: "Tasbeeh",
-      icon: Headphones,
-      color: "bg-islamic-light-green",
-      module: "tasbeeh"
-    },
-    {
-      title: "Islamic TV",
-      icon: Radio,
-      color: "bg-islamic-light-blue",
-      module: "channels"
+      module: "rate"
     }
   ],
+
+  // Page 1 - More Islamic Apps
+  [
+    {
+      title: "Islamic Quiz",
+      icon: HelpCircle,
+      color: "bg-islamic-green",
+      module: "islamicQuiz"
+    },
+    {
+      title: "3D Salah Guide",
+      icon: Cube,
+      color: "bg-islamic-blue",
+      module: "salahGuide"
+    },
+    {
+      title: "3D Hajj Guide",
+      icon: Mosque,
+      color: "bg-islamic-light-green",
+      module: "hajjGuide",
+      isPremium: true
+    },
+    {
+      title: "Islamic Themes",
+      icon: Palette,
+      color: "bg-islamic-light-blue",
+      module: "islamicThemes"
+    },
+    {
+      title: "Knowledge Tests",
+      icon: BookCheck,
+      color: "bg-islamic-green",
+      module: "knowledgeTests",
+      isPremium: true
+    },
+    {
+      title: "Certificates",
+      icon: GraduationCap,
+      color: "bg-islamic-blue",
+      module: "certificates"
+    },
+    {
+      title: "Tip Developer",
+      icon: Gift,
+      color: "bg-islamic-light-green",
+      module: "tipDeveloper"
+    },
+    {
+      title: "Sadqa Jaria",
+      icon: Heart,
+      color: "bg-islamic-light-blue",
+      module: "sadqaJaria"
+    }
+  ],
+
+  // Keep rest of the pages the same...
   // Page 2 features
   [
     {

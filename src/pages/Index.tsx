@@ -75,22 +75,22 @@ const Index = () => {
         <main className="px-4 py-6">
           <PrayerTimer className="mb-6" />
           
-          <Accordion type="single" collapsible className="mb-6">
-            <AccordionItem value="general">
-              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white">
-                General
+          <Accordion type="single" collapsible className="mb-6 space-y-4">
+            <AccordionItem value="general" className="border rounded-lg overflow-hidden">
+              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white px-4">
+                General Settings
               </AccordionTrigger>
               <AccordionContent>
-                <DynamicIconGrid currentPage={0} className="mt-4" />
+                <DynamicIconGrid currentPage={0} className="mt-4 p-4" />
               </AccordionContent>
             </AccordionItem>
             
-            <AccordionItem value="more-apps">
-              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white">
+            <AccordionItem value="more-apps" className="border rounded-lg overflow-hidden">
+              <AccordionTrigger className="text-xl font-bold text-islamic-dark-navy dark:text-white px-4">
                 More Islamic Apps
               </AccordionTrigger>
               <AccordionContent>
-                <DynamicIconGrid currentPage={4} className="mt-4" />
+                <DynamicIconGrid currentPage={1} className="mt-4 p-4" />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

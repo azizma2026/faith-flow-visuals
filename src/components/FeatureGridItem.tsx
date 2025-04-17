@@ -4,6 +4,7 @@ import { useToast } from "./ui/use-toast";
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import FeatureIcon from "./FeatureIcon";
 import { FeatureItem } from "@/config/featurePages";
+import { Lock } from "lucide-react";
 
 interface FeatureGridItemProps {
   feature: FeatureItem;
@@ -14,19 +15,30 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
   const { toast } = useToast();
 
   const handleIconClick = (module: ModuleType) => {
-    // These modules are already implemented
+    if (feature.isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "This feature is only available for premium users.",
+      });
+      return;
+    }
+
     const implementedModules = [
       "quran", 
       "hadith", 
       "sadqaJaria", 
       "dailyVerse", 
-      "quranEngagement", 
+      "quranEngagement",
       "home",
       "islamicThemes",
       "islamicQuiz",
       "salahGuide",
       "certificates",
-      "tipDeveloper"
+      "tipDeveloper",
+      "contact",
+      "notifications",
+      "share",
+      "rate"
     ];
     
     if (implementedModules.includes(module)) {
@@ -40,12 +52,19 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
   };
 
   return (
-    <FeatureIcon
-      title={feature.title}
-      icon={feature.icon}
-      color={feature.color}
-      onClick={() => handleIconClick(feature.module)}
-    />
+    <div className="relative">
+      <FeatureIcon
+        title={feature.title}
+        icon={feature.icon}
+        color={feature.color}
+        onClick={() => handleIconClick(feature.module)}
+      />
+      {feature.isPremium && (
+        <div className="absolute top-0 right-0 p-1 bg-islamic-gold rounded-full -mt-2 -mr-2">
+          <Lock className="w-3 h-3 text-white" />
+        </div>
+      )}
+    </div>
   );
 };
 
