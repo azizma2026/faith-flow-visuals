@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import { motion } from 'framer-motion';
@@ -21,6 +20,16 @@ const SalahGuideModule = lazy(() => import('@/modules/SalahGuideModule'));
 const CertificatesModule = lazy(() => import('@/modules/CertificatesModule'));
 const TipDeveloperModule = lazy(() => import('@/modules/TipDeveloperModule'));
 
+// Default component for modules that aren't fully implemented yet
+const ComingSoonModule = () => (
+  <div className="flex flex-col items-center justify-center h-screen p-6">
+    <h1 className="text-2xl font-bold text-islamic-gold mb-4">Coming Soon</h1>
+    <p className="text-center text-gray-600 dark:text-gray-300">
+      This feature is under development and will be available soon.
+    </p>
+  </div>
+);
+
 const moduleComponents: Record<ModuleType, React.ComponentType> = {
   home: () => null,
   quran: QuranModule,
@@ -33,12 +42,18 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   sadqaJaria: SadqaJariaModule,
   dailyVerse: DailyVerseModule,
   quranEngagement: QuranEngagementModule,
-  settings: SettingsModule,
   islamicThemes: IslamicThemesModule,
   islamicQuiz: IslamicQuizModule,
   salahGuide: SalahGuideModule,
   certificates: CertificatesModule,
-  tipDeveloper: TipDeveloperModule
+  tipDeveloper: TipDeveloperModule,
+  settings: SettingsModule,
+  contact: ComingSoonModule,
+  notifications: ComingSoonModule,
+  share: ComingSoonModule,
+  rate: ComingSoonModule,
+  hajjGuide: ComingSoonModule,
+  knowledgeTests: ComingSoonModule
 };
 
 export const ModuleWrapper: React.FC = () => {

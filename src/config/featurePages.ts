@@ -2,9 +2,9 @@ import {
   Book, Clock, Compass, BookOpen, BookMarked, FileText, 
   Headphones, Radio, Map, Heart, Calendar, Settings, 
   Tv, Music, Activity, Landmark, Palette, HelpCircle, 
-  Award, Coins, Gift, LayoutDashboard, Cube, BookCheck,
+  Award, Coins, Gift, LayoutDashboard, Box, BookCheck,
   MessagesSquare, BellRing, Share2, Star, GraduationCap,
-  Mosque, PieChart
+  Building, PieChart
 } from "lucide-react";
 import { ModuleType } from "@/stores/navigationStore";
 
@@ -55,13 +55,13 @@ export const FEATURE_PAGES: FeatureItem[][] = [
     },
     {
       title: "3D Salah Guide",
-      icon: Cube,
+      icon: Box,
       color: "bg-islamic-blue",
       module: "salahGuide"
     },
     {
       title: "3D Hajj Guide",
-      icon: Mosque,
+      icon: Building,
       color: "bg-islamic-light-green",
       module: "hajjGuide",
       isPremium: true
