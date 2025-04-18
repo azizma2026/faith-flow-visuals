@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Book, Type, Headphones, BookOpen, Download, Share2, Heart } from "lucide-react";
@@ -27,47 +26,60 @@ const MOCK_SURAH = {
   englishName: "The Opening",
   englishNameTranslation: "The Opening",
   numberOfAyahs: 7,
+  translation: {
+    source: "King Fahd Complex for the Printing of the Holy Quran",
+    year: "1984",
+    language: "English",
+    license: "Free to use with proper attribution"
+  },
   ayahs: [
     {
       number: 1,
       text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
       translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "This verse is known as the Basmalah. Muslims begin their actions with it seeking blessing and divine aid."
     },
     {
       number: 2,
       text: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
       translation: "All praise is due to Allah, Lord of the worlds.",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "Allah deserves all praise for His perfect attributes and actions. He is the Lord and Sustainer of all creation."
     },
     {
       number: 3,
       text: "الرَّحْمَٰنِ الرَّحِيمِ",
       translation: "The Entirely Merciful, the Especially Merciful,",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "Allah is merciful to all creation in this world, and especially merciful to the believers in the Hereafter."
     },
     {
       number: 4,
       text: "مَالِكِ يَوْمِ الدِّينِ",
       translation: "Sovereign of the Day of Recompense.",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "Allah alone is the Master of the Day of Judgment when all will be judged according to their deeds."
     },
     {
       number: 5,
       text: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
       translation: "It is You we worship and You we ask for help.",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "This verse establishes the essence of Islam: worship and seeking help are exclusively directed to Allah alone."
     },
     {
       number: 6,
       text: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
       translation: "Guide us to the straight path -",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "This is the most important supplication: asking Allah for guidance to the right path in beliefs, speech, and actions."
     },
     {
       number: 7,
       text: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
       translation: "The path of those upon whom You have bestowed favor, not of those who have earned Your anger or of those who are astray.",
+      translationSource: "King Fahd Complex for the Printing of the Holy Quran",
       tafsir: "The straight path is that followed by the prophets, truthful ones, martyrs, and righteous. It is not the path of those who earned Allah's anger or who went astray."
     }
   ]
@@ -96,7 +108,18 @@ const TAFSIRS = [
 ];
 
 const TRANSLATIONS = [
-  { id: "en_sahih", name: "English - Sahih International" },
+  { 
+    id: "en_kfc", 
+    name: "English - King Fahd Complex",
+    organization: "King Fahd Complex for the Printing of the Holy Quran",
+    year: "1984"
+  },
+  { 
+    id: "en_sahih", 
+    name: "English - Sahih International",
+    organization: "Dar Abul-Qasim Publishing House",
+    year: "1997"
+  },
   { id: "ur_jalandhry", name: "Urdu - Jalandhry" },
   { id: "tr_diyanet", name: "Turkish - Diyanet" },
   { id: "fr_hamidullah", name: "French - Hamidullah" }
