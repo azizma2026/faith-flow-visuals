@@ -20,6 +20,18 @@ export const FEATURE_PAGES: FeatureItem[][] = [
   // Page 0 - General Features
   [
     {
+      title: "Quran",
+      icon: BookOpen,
+      color: "bg-islamic-green",
+      module: "quran"
+    },
+    {
+      title: "Prayer Times",
+      icon: Clock,
+      color: "bg-islamic-blue",
+      module: "prayerTimes"
+    },
+    {
       title: "Contact Us",
       icon: MessagesSquare,
       color: "bg-islamic-green",
