@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Book, Type, Headphones, BookOpen, Download, Share2, Heart, Loader2 } from "lucide-react";
+import { Book, Type, Headphones, BookOpen, Download, Share2, Heart, Loader2, Volume2, VolumeX, Pause } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,21 +19,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   useCombinedSurah, 
   TRANSLATION_MAP, 
-  TAFSIR_MAP 
+  TAFSIR_MAP,
+  RECITERS_DATABASE,
+  getAudioUrl,
+  Reciter
 } from "@/api/quranClient";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-// Mock reciters data
-const RECITERS = [
-  { id: 1, name: "Abdul Rahman Al-Sudais", isNew: false, hasOfflineContent: true },
-  { id: 2, name: "Mishari Rashid Al-Afasy", isNew: false, hasOfflineContent: false },
-  { id: 3, name: "Saud Al-Shuraim", isNew: true, hasOfflineContent: false },
-  { id: 4, name: "Maher Al Muaiqly", isNew: false, hasOfflineContent: true },
-  { id: 5, name: "Muhammad Siddiq Al-Minshawi", isNew: true, hasOfflineContent: false }
-];
 
 const FONTS = [
   { id: "indopak", name: "Indopak", preview: "بِسْمِ اللَّهِ" },
@@ -71,40 +65,137 @@ const QuranModule: React.FC = () => {
   const [showTranslation, setShowTranslation] = useState(true);
   const [showTafsir, setShowTafsir] = useState(false);
   const [selectedFont, setSelectedFont] = useState("uthmani");
-  const [selectedReciter, setSelectedReciter] = useState<number | null>(null);
+  const [selectedReciterId, setSelectedReciterId] = useState<string | null>(null);
   const [selectedTafsir, setSelectedTafsir] = useState("taqi_usmani");
-  const [selectedTranslation, setSelectedTranslation] = useState("en_kfc"); // Default to King Fahd Complex
+  const [selectedTranslation, setSelectedTranslation] = useState("en_kfc"); 
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
-  const [surahNumber, setSurahNumber] = useState(1); // Starting with Al-Fatiha
+  const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
+  const [error, setError] = useState<Record<number, string>>({});
+  const [surahNumber, setSurahNumber] = useState(1);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const { toast } = useToast();
 
   // Fetch the surah with translations
   const { 
     data: surah, 
-    isLoading, 
-    isError, 
-    error 
+    isLoading: isSurahLoading, 
+    isError: isSurahError, 
+    error: surahError 
   } = useCombinedSurah(
     surahNumber, 
     TRANSLATION_MAP[selectedTranslation as keyof typeof TRANSLATION_MAP]
   );
 
-  const handlePlay = (ayahNumber: number) => {
-    if (selectedReciter === null) {
+  // Handle audio ended event
+  useEffect(() => {
+    const audioElement = audioRef.current;
+    
+    const handleEnded = () => {
+      setCurrentlyPlaying(null);
+      setIsPaused(false);
+    };
+    
+    if (audioElement) {
+      audioElement.addEventListener('ended', handleEnded);
+    }
+    
+    return () => {
+      if (audioElement) {
+        audioElement.removeEventListener('ended', handleEnded);
+      }
+    };
+  }, [audioRef.current]);
+
+  // Create or update audio element
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  const handlePlay = async (ayahNumber: number) => {
+    if (!selectedReciterId) {
       toast({
         title: "No reciter selected",
-        description: "Please select a reciter to play audio",
+        description: "Please select a reciter from the Audio tab to play recitations",
       });
       return;
     }
     
-    setCurrentlyPlaying(currentlyPlaying === ayahNumber ? null : ayahNumber);
-    
-    toast({
-      title: "Playing ayah",
-      description: `Now playing ayah ${ayahNumber} by ${RECITERS.find(r => r.id === selectedReciter)?.name}`,
-    });
+    try {
+      // If already playing this ayah, toggle pause/play
+      if (currentlyPlaying === ayahNumber) {
+        if (audioRef.current) {
+          if (isPaused) {
+            await audioRef.current.play();
+            setIsPaused(false);
+          } else {
+            audioRef.current.pause();
+            setIsPaused(true);
+          }
+        }
+        return;
+      }
+      
+      // If playing a different ayah, stop current and play new
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      
+      // Set loading state
+      setIsLoading(prev => ({ ...prev, [ayahNumber]: true }));
+      setError(prev => ({ ...prev, [ayahNumber]: '' }));
+      
+      // Get audio URL
+      const audioUrl = getAudioUrl(selectedReciterId, surahNumber, ayahNumber);
+      
+      if (!audioUrl) {
+        throw new Error("Could not generate audio URL");
+      }
+      
+      // Set new audio source
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        
+        // Play audio and handle errors
+        try {
+          await audioRef.current.play();
+          setCurrentlyPlaying(ayahNumber);
+          setIsPaused(false);
+          
+          const selectedReciter = RECITERS_DATABASE.find(r => r.id === selectedReciterId);
+          
+          toast({
+            title: "Playing ayah",
+            description: `Now playing Surah ${surahNumber}, Ayah ${ayahNumber} by ${selectedReciter?.name || 'Selected Reciter'}`,
+          });
+        } catch (error) {
+          console.error("Audio playback error:", error);
+          setError(prev => ({ 
+            ...prev, 
+            [ayahNumber]: "Could not play audio. Check your device settings or try another reciter." 
+          }));
+          throw error;
+        }
+      }
+    } catch (err) {
+      console.error("Audio handling error:", err);
+      toast({
+        variant: "destructive",
+        title: "Audio Error",
+        description: err instanceof Error ? err.message : "Failed to play audio",
+      });
+    } finally {
+      setIsLoading(prev => ({ ...prev, [ayahNumber]: false }));
+    }
   };
 
   const handleBookmark = (ayahNumber: number) => {
@@ -128,10 +219,23 @@ const QuranModule: React.FC = () => {
     });
   };
 
-  const handleDownload = () => {
+  const handleDownload = (reciterId?: string) => {
+    const reciterToDownload = reciterId || selectedReciterId;
+    
+    if (!reciterToDownload) {
+      toast({
+        variant: "destructive",
+        title: "Download Error",
+        description: "Please select a reciter first",
+      });
+      return;
+    }
+    
+    const selectedReciter = RECITERS_DATABASE.find(r => r.id === reciterToDownload);
+    
     toast({
-      title: "Downloading Surah",
-      description: `Surah ${surah?.englishName || ''} will be available offline shortly.`,
+      title: "Downloading Recitations",
+      description: `${selectedReciter?.name || 'Selected reciter'}'s recitation of Surah ${surah?.englishName || surahNumber} will be available offline shortly.`,
     });
   };
 
@@ -140,6 +244,19 @@ const QuranModule: React.FC = () => {
     uthmani: "font-uthmani",
     tajweed: "font-tajweed"
   }[selectedFont] || "font-uthmani";
+
+  // Function to render the play button with appropriate icon based on state
+  const renderPlayButton = (ayahNumber: number) => {
+    if (isLoading[ayahNumber]) {
+      return <Loader2 className="h-5 w-5 animate-spin" />;
+    }
+    
+    if (currentlyPlaying === ayahNumber) {
+      return isPaused ? <Volume2 className="h-5 w-5" /> : <Pause className="h-5 w-5" />;
+    }
+    
+    return <Headphones className="h-5 w-5" />;
+  };
 
   return (
     <motion.div 
@@ -154,7 +271,7 @@ const QuranModule: React.FC = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold">Quran</h1>
-          {!isLoading && surah && (
+          {!isSurahLoading && surah && (
             <p className="text-sm text-gray-500">
               Surah {surah.number}: {surah.englishName}
             </p>
@@ -296,13 +413,13 @@ const QuranModule: React.FC = () => {
               
               <ScrollArea className="h-72 pr-4">
                 <div className="space-y-4">
-                  {RECITERS.map(reciter => (
+                  {RECITERS_DATABASE.map(reciter => (
                     <div 
                       key={reciter.id}
                       className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                        selectedReciter === reciter.id ? 'border-islamic-green bg-islamic-green/10' : 'border-gray-200 hover:border-islamic-green/50'
+                        selectedReciterId === reciter.id ? 'border-islamic-green bg-islamic-green/10' : 'border-gray-200 hover:border-islamic-green/50'
                       }`}
-                      onClick={() => setSelectedReciter(reciter.id)}
+                      onClick={() => setSelectedReciterId(reciter.id)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -311,7 +428,11 @@ const QuranModule: React.FC = () => {
                           </div>
                           <div>
                             <p className="font-medium">{reciter.name}</p>
+                            <p className="text-xs text-gray-500">{reciter.arabicName}</p>
                             <div className="flex items-center space-x-2 mt-1">
+                              {reciter.style && (
+                                <span className="text-xs text-gray-500">{reciter.style}</span>
+                              )}
                               {reciter.isNew && (
                                 <span className="bg-islamic-green text-white text-xs px-1.5 py-0.5 rounded">New</span>
                               )}
@@ -324,7 +445,7 @@ const QuranModule: React.FC = () => {
                           </div>
                         </div>
                         
-                        {selectedReciter === reciter.id && (
+                        {selectedReciterId === reciter.id && (
                           <div className="w-4 h-4 rounded-full bg-islamic-green"></div>
                         )}
                       </div>
@@ -337,7 +458,8 @@ const QuranModule: React.FC = () => {
                 <Button 
                   variant="outline" 
                   className="w-full" 
-                  onClick={handleDownload}
+                  onClick={() => handleDownload()}
+                  disabled={!selectedReciterId}
                 >
                   <Download className="mr-2 h-4 w-4" /> Download Selected Reciter
                 </Button>
@@ -347,26 +469,26 @@ const QuranModule: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="read">
-          {isLoading && (
+          {isSurahLoading && (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-8 w-8 text-islamic-green animate-spin mb-4" />
               <p>Loading Quran content...</p>
             </div>
           )}
 
-          {isError && (
+          {isSurahError && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>
-                {error instanceof Error ? error.message : "Failed to load Quran content. Please try again."}
+                {surahError instanceof Error ? surahError.message : "Failed to load Quran content. Please try again."}
               </AlertDescription>
             </Alert>
           )}
 
-          {!isLoading && !isError && surah && (
+          {!isSurahLoading && !isSurahError && surah && (
             <div className="space-y-6">
               {surah.ayahs.map((ayah) => (
-                <Card key={ayah.numberInSurah} className="overflow-hidden">
+                <Card key={ayah.numberInSurah} className={`overflow-hidden transition-shadow ${currentlyPlaying === ayah.numberInSurah ? 'ring-1 ring-islamic-green shadow-lg' : ''}`}>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div className="bg-islamic-gold/20 text-islamic-gold font-medium rounded-full w-8 h-8 flex items-center justify-center">
@@ -377,9 +499,12 @@ const QuranModule: React.FC = () => {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handlePlay(ayah.numberInSurah)}
-                          className={currentlyPlaying === ayah.numberInSurah ? "text-islamic-green" : ""}
+                          className={`transition-all ${
+                            currentlyPlaying === ayah.numberInSurah ? (isPaused ? "text-islamic-green/50" : "text-islamic-green") : ""
+                          }`}
+                          disabled={isLoading[ayah.numberInSurah]}
                         >
-                          <Headphones className="h-5 w-5" />
+                          {renderPlayButton(ayah.numberInSurah)}
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -424,6 +549,16 @@ const QuranModule: React.FC = () => {
                         </div>
                       </>
                     )}
+                    
+                    {error[ayah.numberInSurah] && (
+                      <Alert variant="destructive" className="mt-3">
+                        <VolumeX className="h-4 w-4" />
+                        <AlertTitle>Audio Error</AlertTitle>
+                        <AlertDescription>
+                          {error[ayah.numberInSurah]}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -454,6 +589,11 @@ const QuranModule: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Hidden audio element for accessibility */}
+      <div className="hidden">
+        <audio ref={audioRef} />
+      </div>
     </motion.div>
   );
 };
