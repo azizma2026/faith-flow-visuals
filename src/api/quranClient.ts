@@ -203,18 +203,23 @@ export const getAudioUrl = (reciterId: string, surahNumber: number, ayahNumber: 
   // Determine which API to use based on reciter's source
   switch (reciter.apiSource) {
     case 'everyayah':
+      // EveryAyah follows the pattern: https://everyayah.com/data/ReciterID/SurahNumberAyahNumber.mp3
       return `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
       
     case 'mp3quran':
-      // MP3Quran.net uses different format (example: /0002/002001.mp3)
-      const surahMP3 = surahNumber.toString().padStart(4, '0');
-      return `${MP3_QURAN_BASE_URL}/${reciterId}/${surahMP3}${ayahFormatted}.mp3`;
+      // MP3Quran.net uses a different format:
+      // Format is: https://server8.mp3quran.net/reciter_id/surah_number.mp3
+      // Note: For MP3Quran, we need to use the surah number without leading zeros and full ayah reference
+      const surahWithoutLeadingZeros = surahNumber.toString().padStart(3, '0');
+      return `${MP3_QURAN_BASE_URL}/${reciterId}/${surahWithoutLeadingZeros}.mp3`;
       
     case 'alquran':
-      return `${API_BASE_URL}/ayah/${surahNumber}:${ayahNumber}/audio/${reciterId}`;
+      // AlQuran.cloud API format
+      return `https://cdn.islamic.network/quran/audio-surah/128/${reciterId}/${surahNumber}.mp3`;
       
     default:
-      return `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
+      // Default to a commonly working format
+      return `https://cdn.islamic.network/quran/audio/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
   }
 };
 
@@ -244,7 +249,7 @@ export const RECITERS_DATABASE: Reciter[] = [
     arabicName: "عبد الباسط عبد الصمد",
     style: "Mujawwad",
     description: "Classic recitation with melodious, measured pace",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: true
   },
   {
@@ -253,43 +258,43 @@ export const RECITERS_DATABASE: Reciter[] = [
     arabicName: "عبد الباسط عبد الصمد",
     style: "Murattal",
     description: "Clear recitation at a steady pace",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: true
   },
   {
-    id: "AbdulSamad",
+    id: "Abdurrahmaan_As-Sudais",
     name: "Abdul Rahman Al-Sudais",
     arabicName: "عبدالرحمن السديس",
     style: "Murattal",
     description: "Imam of the Grand Mosque in Makkah",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: true
   },
   {
-    id: "Saud",
+    id: "Saood_ash-Shuraym",
     name: "Saud Al-Shuraim",
     arabicName: "سعود الشريم",
     style: "Murattal",
     description: "Imam of the Grand Mosque in Makkah",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: true
   },
   {
-    id: "Maher",
+    id: "Maher_AlMuaiqly",
     name: "Maher Al Muaiqly",
     arabicName: "ماهر المعيقلي",
     style: "Murattal",
     description: "Imam of the Grand Mosque in Makkah",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: true
   },
   {
-    id: "Mishary",
+    id: "mahmoud_khaleel_al-husaree",
     name: "Mishari Rashid Al-Afasy",
     arabicName: "مشاري راشد العفاسي",
     style: "Murattal",
     description: "Renowned Kuwaiti reciter",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: false
   },
   {
@@ -298,16 +303,16 @@ export const RECITERS_DATABASE: Reciter[] = [
     arabicName: "محمود خليل الحصري",
     style: "Murattal",
     description: "Classic recitation with strict adherence to tajweed rules",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: false
   },
   {
-    id: "Yasser_Ad-Dussary",
+    id: "yasseraldossari",
     name: "Yasser Ad-Dussary",
     arabicName: "ياسر الدوسري",
     style: "Murattal",
     description: "Emotional recitation style",
-    apiSource: "mp3quran",
+    apiSource: "alquran",
     isNew: true,
     hasOfflineContent: false
   },
@@ -317,36 +322,36 @@ export const RECITERS_DATABASE: Reciter[] = [
     arabicName: "عبد الله بصفر",
     style: "Murattal",
     description: "Professor of Quranic studies",
-    apiSource: "everyayah",
+    apiSource: "alquran",
     hasOfflineContent: false
   },
   {
-    id: "Bandar_Baleela",
+    id: "bandar_baleela",
     name: "Bandar Baleela",
     arabicName: "بندر بليلة",
     style: "Murattal",
     description: "Imam of the Grand Mosque in Makkah",
-    apiSource: "mp3quran",
+    apiSource: "alquran",
     isNew: true,
     hasOfflineContent: false
   },
   {
-    id: "Fares_Abbad",
+    id: "fares",
     name: "Fares Abbad",
     arabicName: "فارس عباد",
     style: "Murattal",
     description: "Imam in Madinah, known for his melodious voice",
-    apiSource: "mp3quran",
+    apiSource: "alquran",
     isNew: true,
     hasOfflineContent: false
   },
   {
-    id: "Al_Juhany",
+    id: "Abdullah_AlJuhany",
     name: "Abdullah Al-Juhany",
     arabicName: "عبدالله الجهني",
     style: "Murattal",
     description: "Imam of the Grand Mosque in Makkah",
-    apiSource: "mp3quran",
+    apiSource: "alquran",
     isNew: true,
     hasOfflineContent: false
   }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Book, Type, Headphones, BookOpen, Download, Share2, Heart, Loader2, Volume2, VolumeX, Pause } from "lucide-react";
@@ -108,19 +107,6 @@ const QuranModule: React.FC = () => {
     };
   }, [audioRef.current]);
 
-  // Create or update audio element
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, []);
-
   const handlePlay = async (ayahNumber: number) => {
     if (!selectedReciterId) {
       toast({
@@ -161,9 +147,24 @@ const QuranModule: React.FC = () => {
         throw new Error("Could not generate audio URL");
       }
       
+      console.log("Attempting to play audio from URL:", audioUrl);
+      
       // Set new audio source
       if (audioRef.current) {
         audioRef.current.src = audioUrl;
+        audioRef.current.load(); // Force reload of audio source
+        
+        // Add event listener for debugging
+        const onCanPlayThrough = () => {
+          console.log("Audio can play through");
+        };
+        
+        const onError = (e: ErrorEvent) => {
+          console.error("Audio error event:", e);
+        };
+        
+        audioRef.current.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+        audioRef.current.addEventListener('error', onError, { once: true });
         
         // Play audio and handle errors
         try {
@@ -181,7 +182,7 @@ const QuranModule: React.FC = () => {
           console.error("Audio playback error:", error);
           setError(prev => ({ 
             ...prev, 
-            [ayahNumber]: "Could not play audio. Check your device settings or try another reciter." 
+            [ayahNumber]: "Could not play audio. Check your internet connection or try another reciter." 
           }));
           throw error;
         }
@@ -257,6 +258,25 @@ const QuranModule: React.FC = () => {
     
     return <Headphones className="h-5 w-5" />;
   };
+
+  // Create or update audio element
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.preload = "auto"; // Preload audio data
+    }
+    
+    // Set default volume to ensure it's not muted
+    if (audioRef.current) {
+      audioRef.current.volume = 0.8;
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
 
   return (
     <motion.div 
