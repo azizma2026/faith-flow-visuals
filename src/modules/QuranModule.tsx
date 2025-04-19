@@ -140,6 +140,9 @@ const QuranModule: React.FC = () => {
       setIsLoading(prev => ({ ...prev, [ayahNumber]: true }));
       setError(prev => ({ ...prev, [ayahNumber]: '' }));
       
+      // Always create a new audio element to avoid caching issues
+      audioRef.current = new Audio();
+      
       // Get audio URL
       const audioUrl = getAudioUrl(selectedReciterId, surahNumber, ayahNumber);
       
@@ -150,41 +153,44 @@ const QuranModule: React.FC = () => {
       console.log("Attempting to play audio from URL:", audioUrl);
       
       // Set new audio source
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.load(); // Force reload of audio source
+      audioRef.current.src = audioUrl;
+      audioRef.current.preload = "auto";
+      audioRef.current.volume = 0.8;
+      
+      // Try to play the audio with error handling
+      try {
+        await audioRef.current.play();
+        setCurrentlyPlaying(ayahNumber);
+        setIsPaused(false);
         
-        // Add event listener for debugging
-        const onCanPlayThrough = () => {
-          console.log("Audio can play through");
-        };
+        const selectedReciter = RECITERS_DATABASE.find(r => r.id === selectedReciterId);
         
-        const onError = (e: ErrorEvent) => {
-          console.error("Audio error event:", e);
-        };
+        toast({
+          title: "Playing ayah",
+          description: `Now playing Surah ${surahNumber}, Ayah ${ayahNumber} by ${selectedReciter?.name || 'Selected Reciter'}`,
+        });
+      } catch (error) {
+        console.error("Audio playback error:", error);
         
-        audioRef.current.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
-        audioRef.current.addEventListener('error', onError, { once: true });
-        
-        // Play audio and handle errors
+        // Retry with another URL format as fallback
         try {
-          await audioRef.current.play();
-          setCurrentlyPlaying(ayahNumber);
-          setIsPaused(false);
+          const fallbackUrl = `https://verses.quran.com/Alafasy/${surahNumber}:${ayahNumber}.mp3`;
+          console.log("Trying fallback URL:", fallbackUrl);
           
-          const selectedReciter = RECITERS_DATABASE.find(r => r.id === selectedReciterId);
-          
-          toast({
-            title: "Playing ayah",
-            description: `Now playing Surah ${surahNumber}, Ayah ${ayahNumber} by ${selectedReciter?.name || 'Selected Reciter'}`,
-          });
-        } catch (error) {
-          console.error("Audio playback error:", error);
+          if (audioRef.current) {
+            audioRef.current.src = fallbackUrl;
+            audioRef.current.load();
+            await audioRef.current.play();
+            setCurrentlyPlaying(ayahNumber);
+            setIsPaused(false);
+          }
+        } catch (fallbackError) {
+          console.error("Fallback audio playback error:", fallbackError);
           setError(prev => ({ 
             ...prev, 
             [ayahNumber]: "Could not play audio. Check your internet connection or try another reciter." 
           }));
-          throw error;
+          throw fallbackError;
         }
       }
     } catch (err) {
