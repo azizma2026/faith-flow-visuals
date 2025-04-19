@@ -1,15 +1,10 @@
 
 import React from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { Book, Clock, Compass, BookOpen, Calendar, Bell } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigationStore } from "@/stores/navigationStore";
 
 interface IconCarouselProps {
   onSelect?: (index: number) => void;
@@ -17,15 +12,22 @@ interface IconCarouselProps {
 }
 
 const ICONS = [
-  { icon: Book, label: "Quran", color: "bg-islamic-green" },
-  { icon: Clock, label: "Prayer Times", color: "bg-islamic-blue" },
-  { icon: Compass, label: "Qibla", color: "bg-islamic-light-green" },
-  { icon: BookOpen, label: "Hadith", color: "bg-islamic-light-blue" },
-  { icon: Calendar, label: "Calendar", color: "bg-islamic-green" },
-  { icon: Bell, label: "Notifications", color: "bg-islamic-blue" },
-];
+  { icon: Book, label: "Quran", color: "bg-islamic-green", module: "quran" },
+  { icon: Clock, label: "Prayer Times", color: "bg-islamic-blue", module: "prayerTimes" },
+  { icon: Compass, label: "Qibla", color: "bg-islamic-light-green", module: "qibla" },
+  { icon: BookOpen, label: "Hadith", color: "bg-islamic-light-blue", module: "hadith" },
+  { icon: Calendar, label: "Calendar", color: "bg-islamic-green", module: "calendar" },
+  { icon: Bell, label: "Notifications", color: "bg-islamic-blue", module: "notifications" },
+] as const;
 
 const IconCarousel: React.FC<IconCarouselProps> = ({ onSelect, className }) => {
+  const setActiveModule = useNavigationStore((state) => state.setActiveModule);
+
+  const handleSelect = (index: number) => {
+    onSelect?.(index);
+    setActiveModule(ICONS[index].module as any);
+  };
+
   return (
     <Carousel
       opts={{
@@ -40,7 +42,7 @@ const IconCarousel: React.FC<IconCarouselProps> = ({ onSelect, className }) => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => onSelect?.(index)}
+              onClick={() => handleSelect(index)}
               className="flex flex-col items-center gap-2 cursor-pointer"
             >
               <div className={cn("rounded-full p-4", item.color)}>
