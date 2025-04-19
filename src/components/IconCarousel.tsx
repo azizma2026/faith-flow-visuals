@@ -19,7 +19,7 @@ const ICONS = [
   { icon: FileText, label: "Duas", color: "bg-islamic-green", module: "duas" },
   { icon: Tv, label: "Makkah TV", color: "bg-islamic-blue", module: "channels" },
   { icon: Tv, label: "Madinah TV", color: "bg-islamic-light-green", module: "channels" },
-  { icon: Heart, label: "99 Names", color: "bg-islamic-light-blue", module: "settings" },
+  { icon: Heart, label: "99 Names", color: "bg-islamic-light-blue", module: "namesOfAllah" },
 ] as const;
 
 const IconCarousel: React.FC<IconCarouselProps> = ({ onSelect, className }) => {

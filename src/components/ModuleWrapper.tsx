@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import { motion } from 'framer-motion';
@@ -20,6 +19,7 @@ const IslamicQuizModule = lazy(() => import('@/modules/IslamicQuizModule'));
 const SalahGuideModule = lazy(() => import('@/modules/SalahGuideModule'));
 const CertificatesModule = lazy(() => import('@/modules/CertificatesModule'));
 const TipDeveloperModule = lazy(() => import('@/modules/TipDeveloperModule'));
+const NamesOfAllahModule = lazy(() => import('@/modules/NamesOfAllahModule')); // Added the new module import
 
 // Default component for modules that aren't fully implemented yet
 const ComingSoonModule = () => (
@@ -54,7 +54,8 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   share: ComingSoonModule,
   rate: ComingSoonModule,
   hajjGuide: ComingSoonModule,
-  knowledgeTests: ComingSoonModule
+  knowledgeTests: ComingSoonModule,
+  namesOfAllah: NamesOfAllahModule // Added the missing module
 };
 
 export const ModuleWrapper: React.FC = () => {
