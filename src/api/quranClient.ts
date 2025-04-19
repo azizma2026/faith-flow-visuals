@@ -1,4 +1,3 @@
-
 // Quran API client for fetching Quran text, translations, and related data
 import { useQuery } from "@tanstack/react-query";
 
@@ -48,12 +47,11 @@ export interface Reciter {
   hasOfflineContent?: boolean;
 }
 
-// Base URL for Al-Quran Cloud API (offers KFC translation)
+// Update base URLs to use more reliable CDNs
 const API_BASE_URL = "https://api.alquran.cloud/v1";
-// Base URL for EveryAyah API (popular for recitations)
 const EVERY_AYAH_BASE_URL = "https://everyayah.com/data";
-// Base URL for MP3Quran.net
 const MP3_QURAN_BASE_URL = "https://server8.mp3quran.net";
+const ISLAMIC_NET_CDN = "https://cdn.islamic.network/quran/audio";
 
 // Fetch list of all surahs
 export const useSurahs = () => {
@@ -186,7 +184,7 @@ export const useAvailableTafsirs = () => {
   });
 };
 
-// Get audio URL for specific surah, ayah and reciter
+// Enhanced audio URL generation with fallbacks
 export const getAudioUrl = (reciterId: string, surahNumber: number, ayahNumber: number): string => {
   // Format numbers with leading zeros
   const surahFormatted = surahNumber.toString().padStart(3, '0');
@@ -200,27 +198,33 @@ export const getAudioUrl = (reciterId: string, surahNumber: number, ayahNumber: 
     return '';
   }
   
+  // Primary URL generation based on reciter's source
+  let primaryUrl = '';
+  let fallbackUrl = '';
+  
   // Determine which API to use based on reciter's source
   switch (reciter.apiSource) {
     case 'everyayah':
-      // EveryAyah follows the pattern: https://everyayah.com/data/ReciterID/SurahNumberAyahNumber.mp3
-      return `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
+      primaryUrl = `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
+      fallbackUrl = `${ISLAMIC_NET_CDN}/128/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
+      break;
       
     case 'mp3quran':
-      // MP3Quran.net uses a different format:
-      // Format is: https://server8.mp3quran.net/reciter_id/surah_number.mp3
-      // Note: For MP3Quran, we need to use the surah number without leading zeros and full ayah reference
-      const surahWithoutLeadingZeros = surahNumber.toString().padStart(3, '0');
-      return `${MP3_QURAN_BASE_URL}/${reciterId}/${surahWithoutLeadingZeros}.mp3`;
+      primaryUrl = `${MP3_QURAN_BASE_URL}/${reciterId}/${surahFormatted}.mp3`;
+      fallbackUrl = `${ISLAMIC_NET_CDN}/128/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
+      break;
       
     case 'alquran':
-      // AlQuran.cloud API format
-      return `https://cdn.islamic.network/quran/audio-surah/128/${reciterId}/${surahNumber}.mp3`;
+      primaryUrl = `${ISLAMIC_NET_CDN}/128/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
+      fallbackUrl = `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
+      break;
       
     default:
-      // Default to a commonly working format
-      return `https://cdn.islamic.network/quran/audio/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
+      primaryUrl = `${ISLAMIC_NET_CDN}/128/${reciterId}/${surahNumber}/${ayahNumber}.mp3`;
+      fallbackUrl = `${EVERY_AYAH_BASE_URL}/${reciterId}/${surahFormatted}${ayahFormatted}.mp3`;
   }
+
+  return primaryUrl || fallbackUrl;
 };
 
 // Map translation identifiers to their full API identifiers
@@ -241,8 +245,17 @@ export const TAFSIR_MAP = {
   "maariful": "ur.maududi", // Maariful Quran (Urdu)
 };
 
-// Database of famous Quran reciters, particularly from Masjid al-Haram
+// Update some reciter IDs to match the CDN expectations
 export const RECITERS_DATABASE: Reciter[] = [
+  {
+    id: "abdul_basit_murattal",
+    name: "Abdul Basit Abdul Samad (Murattal)",
+    arabicName: "عبد الباسط عبد الصمد",
+    style: "Murattal",
+    description: "Clear recitation at a steady pace",
+    apiSource: "alquran",
+    hasOfflineContent: true
+  },
   {
     id: "Abdul_Basit_Mujawwad",
     name: "Abdul Basit Abdul Samad (Mujawwad)",
@@ -253,16 +266,7 @@ export const RECITERS_DATABASE: Reciter[] = [
     hasOfflineContent: true
   },
   {
-    id: "Abdul_Basit_Murattal",
-    name: "Abdul Basit Abdul Samad (Murattal)",
-    arabicName: "عبد الباسط عبد الصمد",
-    style: "Murattal",
-    description: "Clear recitation at a steady pace",
-    apiSource: "alquran",
-    hasOfflineContent: true
-  },
-  {
-    id: "Abdurrahmaan_As-Sudais",
+    id: "sudais",
     name: "Abdul Rahman Al-Sudais",
     arabicName: "عبدالرحمن السديس",
     style: "Murattal",
@@ -271,7 +275,7 @@ export const RECITERS_DATABASE: Reciter[] = [
     hasOfflineContent: true
   },
   {
-    id: "Saood_ash-Shuraym",
+    id: "shuraym",
     name: "Saud Al-Shuraim",
     arabicName: "سعود الشريم",
     style: "Murattal",
