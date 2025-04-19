@@ -1,15 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Header from "@/components/Header";
 import PrayerTimer from "@/components/PrayerTimer";
 import DynamicIconGrid from "@/components/DynamicIconGrid";
+import IconCarousel from "@/components/IconCarousel";
 import PageNavigation from "@/components/PageNavigation";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import LanguageSelector from "@/components/LanguageSelector";
 import { getGregorianDate, getHijriDate, getCurrentTime } from "@/utils/dateUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -52,6 +53,15 @@ const Index = () => {
     }
   };
 
+  const { toast } = useToast();
+  
+  const handleIconSelect = (index: number) => {
+    toast({
+      title: "Feature selected",
+      description: `You selected feature ${index + 1}`,
+    });
+  };
+
   return (
     <motion.div 
       className={`min-h-screen ${isDarkMode ? 'dark bg-islamic-dark-navy' : 'mosque-silhouette-bg'}`}
@@ -74,6 +84,8 @@ const Index = () => {
         
         <main className="px-4 py-6">
           <PrayerTimer className="mb-6" />
+          
+          <IconCarousel onSelect={handleIconSelect} className="mb-6" />
           
           <Accordion type="single" collapsible className="mb-6 space-y-4">
             <AccordionItem value="general" className="border rounded-lg overflow-hidden">
