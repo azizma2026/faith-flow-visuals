@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import { motion } from 'framer-motion';

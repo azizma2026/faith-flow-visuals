@@ -2,7 +2,7 @@
 import React from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { Book, Clock, Compass, BookOpen, Calendar, Bell } from "lucide-react";
+import { Book, Clock, Compass, BookOpen, FileText, Tv, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigationStore } from "@/stores/navigationStore";
 
@@ -16,8 +16,10 @@ const ICONS = [
   { icon: Clock, label: "Prayer Times", color: "bg-islamic-blue", module: "prayerTimes" },
   { icon: Compass, label: "Qibla", color: "bg-islamic-light-green", module: "qibla" },
   { icon: BookOpen, label: "Hadith", color: "bg-islamic-light-blue", module: "hadith" },
-  { icon: Calendar, label: "Calendar", color: "bg-islamic-green", module: "calendar" },
-  { icon: Bell, label: "Notifications", color: "bg-islamic-blue", module: "notifications" },
+  { icon: FileText, label: "Duas", color: "bg-islamic-green", module: "duas" },
+  { icon: Tv, label: "Makkah TV", color: "bg-islamic-blue", module: "channels" },
+  { icon: Tv, label: "Madinah TV", color: "bg-islamic-light-green", module: "channels" },
+  { icon: Heart, label: "99 Names", color: "bg-islamic-light-blue", module: "settings" },
 ] as const;
 
 const IconCarousel: React.FC<IconCarouselProps> = ({ onSelect, className }) => {

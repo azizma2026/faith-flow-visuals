@@ -1,3 +1,4 @@
+
 import { create } from 'zustand'
 
 export type ModuleType = 
@@ -23,7 +24,8 @@ export type ModuleType =
   | 'rate'
   | 'hajjGuide'
   | 'knowledgeTests'
-  | 'settings';
+  | 'settings'
+  | 'namesOfAllah'; // Added the new module
 
 interface NavigationState {
   activeModule: ModuleType;
