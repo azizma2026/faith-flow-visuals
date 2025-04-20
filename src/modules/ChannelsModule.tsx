@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Tv, Play } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -58,21 +58,53 @@ const ISLAMIC_CHANNELS: Channel[] = [
 const ChannelsModule: React.FC = () => {
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [isError, setIsError] = useState(false);
+  const [attemptedFallback, setAttemptedFallback] = useState(false);
   const { toast } = useToast();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handleChannelSelect = (channel: Channel) => {
     setSelectedChannel(channel);
     setIsError(false);
+    setAttemptedFallback(false);
   };
 
+  // Function to check if YouTube iframe is actually loading content
+  useEffect(() => {
+    const checkYouTubeAvailability = () => {
+      if (selectedChannel?.type === "video" && iframeRef.current) {
+        // Set a timeout to check if iframe loaded properly
+        const timeoutId = setTimeout(() => {
+          // If we still have an error state after 5 seconds, iframe likely didn't load
+          if (isError && !attemptedFallback && selectedChannel.fallbackUrl) {
+            handleTryFallback();
+          }
+        }, 5000);
+        
+        return () => clearTimeout(timeoutId);
+      }
+    };
+    
+    checkYouTubeAvailability();
+  }, [selectedChannel, isError]);
+  
+  // Handle errors for both audio and video streams
   const handleMediaError = () => {
     setIsError(true);
     
-    // Try fallback URL if available
+    toast({
+      title: "Stream unavailable",
+      description: "The selected channel stream is currently unavailable.",
+      duration: 5000,
+    });
+  };
+  
+  // Try fallback source when available
+  const handleTryFallback = () => {
     if (selectedChannel?.fallbackUrl && selectedChannel.url !== selectedChannel.fallbackUrl) {
       toast({
-        title: "Stream unavailable",
-        description: "Trying alternative source...",
+        title: "Trying alternative source",
+        description: "Switching to backup stream...",
         duration: 3000,
       });
       
@@ -82,6 +114,8 @@ const ChannelsModule: React.FC = () => {
       };
       
       setSelectedChannel(updatedChannel);
+      setIsError(false);
+      setAttemptedFallback(true);
     }
   };
 
@@ -130,6 +164,7 @@ const ChannelsModule: React.FC = () => {
           {selectedChannel.type === "video" ? (
             <div className="aspect-w-16 aspect-h-9 w-full max-w-xl mx-auto mb-3">
               <iframe
+                ref={iframeRef}
                 src={selectedChannel.url}
                 title={selectedChannel.name}
                 className="rounded-lg w-full h-72 sm:h-96"
@@ -140,6 +175,7 @@ const ChannelsModule: React.FC = () => {
             </div>
           ) : (
             <audio 
+              ref={audioRef}
               src={selectedChannel.url} 
               controls 
               autoPlay 
@@ -164,13 +200,7 @@ const ChannelsModule: React.FC = () => {
             {selectedChannel.fallbackUrl && selectedChannel.url !== selectedChannel.fallbackUrl && (
               <button
                 className="text-sm text-islamic-blue underline"
-                onClick={() => {
-                  setSelectedChannel({
-                    ...selectedChannel,
-                    url: selectedChannel.fallbackUrl || selectedChannel.url
-                  });
-                  setIsError(false);
-                }}
+                onClick={handleTryFallback}
               >
                 Try alternative source
               </button>
