@@ -1,13 +1,15 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Radio, Tv } from "lucide-react";
+import { Radio, Tv, Play } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 type Channel = {
   id: string;
   name: string;
   type: "video" | "audio";
   url: string;
+  fallbackUrl?: string;
   description: string;
   icon: React.ElementType;
 };
@@ -17,8 +19,9 @@ const ISLAMIC_CHANNELS: Channel[] = [
     id: "makkah-live",
     name: "Makkah Live",
     type: "video",
-    // Official Makkah live stream (Saudi TV / YouTube stream, public, widely used)
-    url: "https://www.youtube.com/embed/5P2LkqNSSqA?autoplay=1&mute=0",
+    // Updated to more reliable Makkah live stream
+    url: "https://www.youtube.com/embed/bA9lVYArr-g?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/UnSuCiZGif0?autoplay=1&mute=0",
     description: "24/7 live video from Masjid al-Haram (Makkah).",
     icon: Tv,
   },
@@ -26,8 +29,9 @@ const ISLAMIC_CHANNELS: Channel[] = [
     id: "madinah-live",
     name: "Madinah Live",
     type: "video",
-    // Official Madinah live stream (Saudi TV / YouTube, public, widely used)
-    url: "https://www.youtube.com/embed/1bU2MlG1V1g?autoplay=1&mute=0",
+    // Updated to more reliable Madinah live stream
+    url: "https://www.youtube.com/embed/N95CVrrUjKQ?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/V01OrXRjpvM?autoplay=1&mute=0",
     description: "24/7 live video from Masjid an-Nabawi (Madinah).",
     icon: Tv,
   },
@@ -35,15 +39,51 @@ const ISLAMIC_CHANNELS: Channel[] = [
     id: "quran-radio",
     name: "Quran Radio",
     type: "audio",
-    // Saudi Quran Radio publicly listed
-    url: "https://stream.quran.com.sa:8008/live.mp3",
+    // Updated to more reliable Quran radio stream
+    url: "https://Qurango.net/radio/mix",
+    fallbackUrl: "https://Qurango.net/radio/tarateel",
     description: "Live Quran recitation radio from Saudi Arabia.",
     icon: Radio,
+  },
+  {
+    id: "peace-tv",
+    name: "Peace TV",
+    type: "video",
+    url: "https://www.youtube.com/embed/S9GUA1X6g4k?autoplay=1&mute=0",
+    description: "Islamic educational content and lectures.",
+    icon: Tv,
   },
 ];
 
 const ChannelsModule: React.FC = () => {
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+  const [isError, setIsError] = useState(false);
+  const { toast } = useToast();
+
+  const handleChannelSelect = (channel: Channel) => {
+    setSelectedChannel(channel);
+    setIsError(false);
+  };
+
+  const handleMediaError = () => {
+    setIsError(true);
+    
+    // Try fallback URL if available
+    if (selectedChannel?.fallbackUrl && selectedChannel.url !== selectedChannel.fallbackUrl) {
+      toast({
+        title: "Stream unavailable",
+        description: "Trying alternative source...",
+        duration: 3000,
+      });
+      
+      const updatedChannel = {
+        ...selectedChannel,
+        url: selectedChannel.fallbackUrl
+      };
+      
+      setSelectedChannel(updatedChannel);
+    }
+  };
 
   return (
     <motion.div 
@@ -54,7 +94,7 @@ const ChannelsModule: React.FC = () => {
     >
       <div className="flex items-center mb-6">
         <div className="bg-islamic-light-blue rounded-xl p-3 mr-4">
-          <Radio className="h-8 w-8 text-white" />
+          <Play className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-2xl font-bold">Islamic Channels</h1>
       </div>
@@ -63,7 +103,7 @@ const ChannelsModule: React.FC = () => {
         {ISLAMIC_CHANNELS.map((channel) => (
           <button
             key={channel.id}
-            onClick={() => setSelectedChannel(channel)}
+            onClick={() => handleChannelSelect(channel)}
             className={`flex flex-col bg-white dark:bg-islamic-dark-navy border rounded-xl shadow hover:shadow-lg p-4 transition ring-2 ring-transparent hover:ring-islamic-blue ${
               selectedChannel?.id === channel.id ? "ring-islamic-gold" : ""
             }`}
@@ -80,7 +120,7 @@ const ChannelsModule: React.FC = () => {
       {!selectedChannel && (
         <div className="text-center my-12 opacity-70">
           <p>Select an Islamic channel to watch or listen to the live broadcast.</p>
-          <p className="text-sm text-gray-500 mt-2">Makkah and Madinah streams provided by official Saudi TV networks.</p>
+          <p className="text-sm text-gray-500 mt-2">Streams update periodically; if one is unavailable, try another channel.</p>
         </div>
       )}
 
@@ -93,19 +133,49 @@ const ChannelsModule: React.FC = () => {
                 src={selectedChannel.url}
                 title={selectedChannel.name}
                 className="rounded-lg w-full h-72 sm:h-96"
-                allow="autoplay; encrypted-media"
+                allow="autoplay; encrypted-media; fullscreen"
                 allowFullScreen
+                onError={handleMediaError}
               />
             </div>
           ) : (
-            <audio src={selectedChannel.url} controls autoPlay className="w-full mb-3 rounded" />
+            <audio 
+              src={selectedChannel.url} 
+              controls 
+              autoPlay 
+              className="w-full mb-3 rounded" 
+              onError={handleMediaError}
+            />
           )}
-          <button
-            className="mt-2 text-sm text-islamic-gold underline"
-            onClick={() => setSelectedChannel(null)}
-          >
-            Choose another channel
-          </button>
+          
+          {isError && (
+            <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md p-3 mb-3">
+              <p>This stream is currently unavailable. Please try the fallback source or select another channel.</p>
+            </div>
+          )}
+          
+          <div className="flex justify-center space-x-2 mt-2">
+            <button
+              className="text-sm text-islamic-gold underline"
+              onClick={() => setSelectedChannel(null)}
+            >
+              Choose another channel
+            </button>
+            {selectedChannel.fallbackUrl && selectedChannel.url !== selectedChannel.fallbackUrl && (
+              <button
+                className="text-sm text-islamic-blue underline"
+                onClick={() => {
+                  setSelectedChannel({
+                    ...selectedChannel,
+                    url: selectedChannel.fallbackUrl || selectedChannel.url
+                  });
+                  setIsError(false);
+                }}
+              >
+                Try alternative source
+              </button>
+            )}
+          </div>
         </div>
       )}
     </motion.div>
