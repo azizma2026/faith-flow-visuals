@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Tv } from "lucide-react";
@@ -6,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ChannelsList from "./components/ChannelsList";
 import ChannelPlayer from "./components/ChannelPlayer";
 import IconCarousel from "@/components/IconCarousel";
+import { useNavigationStore } from "@/stores/navigationStore";
 
 export type Channel = {
   id: string;
@@ -61,6 +61,7 @@ const ChannelsModule: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const [attemptedFallback, setAttemptedFallback] = useState(false);
   const { toast } = useToast();
+  const setActiveModule = useNavigationStore((state) => state.setActiveModule);
 
   // Toast & state reset when changing channels
   const handleChannelSelect = (channel: Channel) => {
