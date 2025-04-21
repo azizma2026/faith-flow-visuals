@@ -1,10 +1,11 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Tv } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ChannelsList from "./components/ChannelsList";
 import ChannelPlayer from "./components/ChannelPlayer";
+import IconCarousel from "@/components/IconCarousel";
 
 export type Channel = {
   id: string;
@@ -119,6 +120,15 @@ const ChannelsModule: React.FC = () => {
     }
   };
 
+  const handleIconSelect = (index: number) => {
+    // This function handles icon selection from the IconCarousel
+    toast({
+      title: "Feature selected",
+      description: "Navigating to Islamic channels",
+      duration: 2000,
+    });
+  };
+
   return (
     <motion.div
       className="p-6 max-w-lg mx-auto"
@@ -128,12 +138,12 @@ const ChannelsModule: React.FC = () => {
     >
       <div className="flex items-center mb-6">
         <div className="bg-islamic-light-blue rounded-xl p-3 mr-4">
-          <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" strokeWidth={2}>
-            <use href="#lucide-play" />
-          </svg>
+          <Tv className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-2xl font-bold">Islamic Channels</h1>
       </div>
+
+      <IconCarousel className="mb-8" onSelect={handleIconSelect} />
 
       <ChannelsList
         channels={ISLAMIC_CHANNELS}
