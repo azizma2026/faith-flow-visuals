@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import { motion } from 'framer-motion';
+import BreadcrumbNav from './BreadcrumbNav';
 
 // Lazy load heavy components
 const QuranModule = lazy(() => import('@/modules/QuranModule'));
@@ -74,6 +75,11 @@ export const ModuleWrapper: React.FC = () => {
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Add breadcrumbs at the top */}
+      <div className="sticky top-0 z-10 p-2">
+        <BreadcrumbNav />
+      </div>
+      
       <Suspense fallback={
         <div className="flex items-center justify-center h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green"></div>

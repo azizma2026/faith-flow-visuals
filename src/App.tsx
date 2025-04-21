@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { NavigationMenu } from "@/components/ui/navigation-menu";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import QuranEngagement from "./pages/QuranEngagement";
@@ -25,10 +24,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <ModuleWrapper />
         <BrowserRouter>
+          <Toaster />
+          <Sonner />
+          <ModuleWrapper />
           <div className="min-h-screen bg-background">
             <Routes>
               <Route path="/" element={<Index />} />
