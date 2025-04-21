@@ -38,7 +38,8 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
       "contact",
       "notifications",
       "share",
-      "rate"
+      "rate",
+      "islamicChannels"  // Added Islamic Channels module
     ];
     
     if (implementedModules.includes(module)) {

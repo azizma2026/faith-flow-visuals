@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Tv, Play } from "lucide-react";
@@ -20,8 +19,8 @@ const ISLAMIC_CHANNELS: Channel[] = [
     name: "Makkah Live",
     type: "video",
     // Updated to more reliable Makkah live stream
-    url: "https://www.youtube.com/embed/bA9lVYArr-g?autoplay=1&mute=0",
-    fallbackUrl: "https://www.youtube.com/embed/UnSuCiZGif0?autoplay=1&mute=0",
+    url: "https://www.youtube.com/embed/Q9nZ8FZ8CFg?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/ew35HA9Pwr8?autoplay=1&mute=0",
     description: "24/7 live video from Masjid al-Haram (Makkah).",
     icon: Tv,
   },
@@ -30,8 +29,8 @@ const ISLAMIC_CHANNELS: Channel[] = [
     name: "Madinah Live",
     type: "video",
     // Updated to more reliable Madinah live stream
-    url: "https://www.youtube.com/embed/N95CVrrUjKQ?autoplay=1&mute=0",
-    fallbackUrl: "https://www.youtube.com/embed/V01OrXRjpvM?autoplay=1&mute=0",
+    url: "https://www.youtube.com/embed/hdGn2X8D8K4?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/zFHgBfEvOMg?autoplay=1&mute=0",
     description: "24/7 live video from Masjid an-Nabawi (Madinah).",
     icon: Tv,
   },
@@ -40,8 +39,8 @@ const ISLAMIC_CHANNELS: Channel[] = [
     name: "Quran Radio",
     type: "audio",
     // Updated to more reliable Quran radio stream
-    url: "https://Qurango.net/radio/mix",
-    fallbackUrl: "https://Qurango.net/radio/tarateel",
+    url: "https://backup.qurango.net/radio/mix",
+    fallbackUrl: "https://backup.qurango.net/radio/tarateel",
     description: "Live Quran recitation radio from Saudi Arabia.",
     icon: Radio,
   },
@@ -49,7 +48,8 @@ const ISLAMIC_CHANNELS: Channel[] = [
     id: "peace-tv",
     name: "Peace TV",
     type: "video",
-    url: "https://www.youtube.com/embed/S9GUA1X6g4k?autoplay=1&mute=0",
+    url: "https://www.youtube.com/embed/BuVUd9C6tks?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/g7R3U6wS4Og?autoplay=1&mute=0",
     description: "Islamic educational content and lectures.",
     icon: Tv,
   },
@@ -62,11 +62,18 @@ const ChannelsModule: React.FC = () => {
   const { toast } = useToast();
   const audioRef = useRef<HTMLAudioElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-
+  
   const handleChannelSelect = (channel: Channel) => {
     setSelectedChannel(channel);
     setIsError(false);
     setAttemptedFallback(false);
+    
+    // Show toast notification when channel is selected
+    toast({
+      title: `${channel.name} selected`,
+      description: `Loading ${channel.type === "video" ? "stream" : "audio"}...`,
+      duration: 2000,
+    });
   };
 
   // Function to check if YouTube iframe is actually loading content

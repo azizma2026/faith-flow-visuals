@@ -62,10 +62,10 @@ const FEATURE_PAGES = [
       onClick: () => console.log("Tasbeeh clicked")
     },
     {
-      title: "Islamic TV",
+      title: "Islamic Channels",
       icon: Radio,
       color: "bg-islamic-light-blue",
-      onClick: () => console.log("Islamic TV clicked")
+      path: "/islamic-channels"
     }
   ],
   // Page 2 features
@@ -125,13 +125,13 @@ const FEATURE_PAGES = [
       title: "Makkah Live",
       icon: Tv,
       color: "bg-islamic-green",
-      onClick: () => console.log("Makkah Live clicked")
+      path: "/islamic-channels"
     },
     {
       title: "Madinah Live",
       icon: Tv,
       color: "bg-islamic-blue",
-      onClick: () => console.log("Madinah Live clicked")
+      path: "/islamic-channels"
     },
     {
       title: "Halal Places",

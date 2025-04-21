@@ -16,6 +16,7 @@ import IslamicQuiz from "./modules/IslamicQuizModule";
 import SalahGuide from "./modules/SalahGuideModule";
 import Certificates from "./modules/CertificatesModule";
 import TipDeveloper from "./modules/TipDeveloperModule";
+import ChannelsModule from "./modules/ChannelsModule";
 import ModuleWrapper from "./components/ModuleWrapper";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/salah-guide" element={<SalahGuide />} />
               <Route path="/certificates" element={<Certificates />} />
               <Route path="/tip-developer" element={<TipDeveloper />} />
+              <Route path="/islamic-channels" element={<ChannelsModule />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
