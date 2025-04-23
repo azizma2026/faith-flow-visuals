@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import type { Channel } from "../ChannelsModule";
 
 type ChannelPlayerProps = {
@@ -21,6 +21,21 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // Reset error state when channel changes
+    const iframe = iframeRef.current;
+    if (iframe) {
+      const handleIframeLoad = () => {
+        console.log(`${channel.name} stream loaded successfully`);
+      };
+      
+      iframe.addEventListener('load', handleIframeLoad);
+      return () => {
+        iframe.removeEventListener('load', handleIframeLoad);
+      };
+    }
+  }, [channel]);
 
   return (
     <div className="rounded-lg bg-gray-50 dark:bg-islamic-blue/20 p-4 shadow-lg text-center">

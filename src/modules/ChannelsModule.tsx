@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Tv } from "lucide-react";
@@ -31,8 +32,8 @@ const ISLAMIC_CHANNELS: Channel[] = [
     id: "madinah-live",
     name: "Madinah Live",
     type: "video",
-    url: "https://www.youtube.com/embed/hdGn2X8D8K4?autoplay=1&mute=0",
-    fallbackUrl: "https://www.youtube.com/embed/zFHgBfEvOMg?autoplay=1&mute=0",
+    url: "https://www.youtube.com/embed/LWtpDwZ1tgk?autoplay=1&mute=0",
+    fallbackUrl: "https://www.youtube.com/embed/O1NGU5nKRKc?autoplay=1&mute=0",
     description: "24/7 live video from Masjid an-Nabawi (Madinah).",
     icon: Tv,
   },
