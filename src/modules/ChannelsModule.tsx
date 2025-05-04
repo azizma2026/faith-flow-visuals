@@ -188,8 +188,8 @@ const ChannelsModule: React.FC = () => {
         <div className="md:col-span-1">
           <ChannelsList
             channels={channels}
-            selectedChannelId={selectedChannel?.id}
-            onSelectChannel={handleSelectChannel}
+            selectedChannel={selectedChannel}
+            onSelect={handleSelectChannel}
           />
         </div>
 
