@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useCombinedSurah } from "@/api/quranClient";
 import { 
@@ -32,6 +31,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   onBookmarkChange,
   isAyahBookmarked = () => false
 }) => {
+  
   const [ayahIndex, setAyahIndex] = useState(0);
   const [translationEdition, setTranslationEdition] = useState(TRANSLATION_MAP[defaultTranslation]);
   const [reciterId, setReciterId] = useState(defaultReciterId);
@@ -48,10 +48,10 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   const currentAyah = surahData?.ayahs[ayahIndex];
   const audioUrl = currentAyah ? getAudioUrl(reciterId, surahNumber, currentAyah.numberInSurah) : "";
 
-  // Jump to specified ayah if provided
+  
   useEffect(() => {
     if (jumpToAyah && surahData && jumpToAyah <= surahData.ayahs.length) {
-      // Adjust for 0-based index
+      
       const targetIndex = surahData.ayahs.findIndex(a => a.numberInSurah === jumpToAyah);
       if (targetIndex !== -1) {
         setAyahIndex(targetIndex);
@@ -59,7 +59,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
     }
   }, [jumpToAyah, surahData]);
 
-  // Check bookmark status when ayah changes
+  
   useEffect(() => {
     if (currentAyah) {
       const isBookmarked = isAyahBookmarked(surahNumber, currentAyah.numberInSurah);
@@ -67,14 +67,14 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
     }
   }, [currentAyah, surahNumber, isAyahBookmarked]);
 
-  // Notify parent of ayah changes
+  
   useEffect(() => {
     if (onAyahChange && currentAyah) {
       onAyahChange(ayahIndex);
     }
   }, [ayahIndex, onAyahChange, currentAyah]);
 
-  // Try playback and show error if it fails
+  
   const handleAudioPlay = () => {
     setPlaybackError(null);
     if (audioRef.current) {
@@ -90,7 +90,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
     }
   };
 
-  // Whenever reciter or ayah changes, play audio
+  
   useEffect(() => {
     if (audioUrl && audioRef.current) {
       handleAudioPlay();
@@ -98,7 +98,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
     // eslint-disable-next-line
   }, [audioUrl, reciterId, ayahIndex]);
 
-  // Handle bookmark toggle
+  
   const toggleBookmark = () => {
     if (!currentAyah) return;
     
@@ -126,16 +126,19 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   if (isLoading) return <p>Loading Surah...</p>;
   if (isError || !surahData) return <p>Failed to load Surah data.</p>;
 
-  // Determine font size classes based on accessibility settings and device
+  
+  const fontSizeValue = typeof fontSize === 'number' ? fontSize : 0;
+  
   const arabicTextSizeClass = isMobile 
     ? "text-[18px] md:text-[22px] quran-arabic-text" 
-    : `text-[${22 + (fontSize * 2)}px] lg:text-[${24 + (fontSize * 2)}px] quran-arabic-text`;
+    : `text-[${22 + (fontSizeValue * 2)}px] lg:text-[${24 + (fontSizeValue * 2)}px] quran-arabic-text`;
     
   const translationTextSizeClass = isMobile
     ? "text-[14px] md:text-[16px] quran-translation-text"
-    : `text-[${16 + fontSize}px] quran-translation-text`;
+    : `text-[${16 + fontSizeValue}px] quran-translation-text`;
 
   return (
+    
     <div className={`p-4 ${isMobile ? 'pb-24' : 'pb-6'} w-full max-w-3xl mx-auto`}>
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold">{surahData.name} ({surahData.englishName})</h2>
@@ -245,7 +248,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
             value={translationEdition}
             onChange={(e) => {
               setTranslationEdition(e.target.value);
-              setAyahIndex(0); // Reset to first ayah when language changes
+              setAyahIndex(0); 
             }}
             className="p-2 border rounded-md w-full mobile-touch-target"
           >
@@ -259,7 +262,7 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
       </div>
       
       {isMobile && (
-        <div className="h-16"></div>  // Spacer for mobile to avoid navigation overlap
+        <div className="h-16"></div>  
       )}
     </div>
   );
