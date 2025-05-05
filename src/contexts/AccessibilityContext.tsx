@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface AccessibilityContextType {
   highContrastMode: boolean;
   toggleHighContrastMode: () => void;
-  fontSize: 'normal' | 'large' | 'x-large';
-  setFontSize: (size: 'normal' | 'large' | 'x-large') => void;
+  fontSize: number | 'normal' | 'large' | 'x-large';
+  setFontSize: (size: 'normal' | 'large' | 'x-large' | number) => void;
   screenReaderMode: boolean;
   toggleScreenReaderMode: () => void;
 }
@@ -25,7 +25,7 @@ export const useAccessibility = () => useContext(AccessibilityContext);
 
 export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [highContrastMode, setHighContrastMode] = useState(false);
-  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'x-large'>('normal');
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'x-large' | number>('normal');
   const [screenReaderMode, setScreenReaderMode] = useState(false);
 
   const toggleHighContrastMode = () => {
@@ -60,7 +60,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   // Save settings to localStorage on change
   useEffect(() => {
     localStorage.setItem('highContrastMode', highContrastMode.toString());
-    localStorage.setItem('fontSize', fontSize);
+    localStorage.setItem('fontSize', fontSize.toString());
     localStorage.setItem('screenReaderMode', screenReaderMode.toString());
   }, [highContrastMode, fontSize, screenReaderMode]);
 
