@@ -1,6 +1,23 @@
+
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { Book, Type, Headphones, BookOpen, Download, Share2, Heart, Loader2, Volume2, VolumeX, Pause } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Book, 
+  Type, 
+  Headphones, 
+  BookOpen, 
+  Download, 
+  Share2, 
+  Heart, 
+  Loader2, 
+  Volume2, 
+  VolumeX, 
+  Pause,
+  Search,
+  Bookmark,
+  X,
+  ArrowLeft
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +36,20 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
+import QuranPlayer from "@/components/QuranPlayer";
+import QuranSearch from "@/components/QuranSearch";
+import QuranTafsir from "@/components/QuranTafsir";
+import BookmarksPanel from "@/components/BookmarksPanel";
+import useQuranBookmarks from "@/hooks/useQuranBookmarks";
 import { 
   useCombinedSurah, 
   TRANSLATION_MAP, 
   TAFSIR_MAP,
   RECITERS_DATABASE,
-  getAudioUrl,
-  Reciter
 } from "@/api/quranClient";
 
 const FONTS = [
@@ -61,255 +85,140 @@ const TRANSLATIONS = [
 ];
 
 const QuranModule: React.FC = () => {
+  const isMobile = useIsMobile();
+  const { fontSize } = useAccessibility();
+  
+  // Core Quran state
   const [showTranslation, setShowTranslation] = useState(true);
   const [showTafsir, setShowTafsir] = useState(false);
   const [selectedFont, setSelectedFont] = useState("uthmani");
-  const [selectedReciterId, setSelectedReciterId] = useState<string | null>(null);
+  const [selectedReciterId, setSelectedReciterId] = useState<string>("Alafasy");
   const [selectedTafsir, setSelectedTafsir] = useState("taqi_usmani");
-  const [selectedTranslation, setSelectedTranslation] = useState("en_kfc"); 
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
-  const [error, setError] = useState<Record<number, string>>({});
+  const [selectedTranslation, setSelectedTranslation] = useState("en_kfc");
   const [surahNumber, setSurahNumber] = useState(1);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [jumpToAyah, setJumpToAyah] = useState<number | undefined>(undefined);
+  
+  // UI state
+  const [activeTab, setActiveTab] = useState("read");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [bookmarksOpen, setBookmarksOpen] = useState(false);
+  const [selectedAyahForTafsir, setSelectedAyahForTafsir] = useState<{surah: number, ayah: number} | null>(null);
+  
+  // Get bookmarks functionality
+  const { 
+    bookmarks, 
+    addBookmark, 
+    removeBookmark, 
+    isBookmarked 
+  } = useQuranBookmarks();
   
   const { toast } = useToast();
 
-  // Fetch the surah with translations
-  const { 
-    data: surah, 
-    isLoading: isSurahLoading, 
-    isError: isSurahError, 
-    error: surahError 
-  } = useCombinedSurah(
-    surahNumber, 
-    TRANSLATION_MAP[selectedTranslation as keyof typeof TRANSLATION_MAP]
-  );
-
-  // Handle audio ended event
-  useEffect(() => {
-    const audioElement = audioRef.current;
-    
-    const handleEnded = () => {
-      setCurrentlyPlaying(null);
-      setIsPaused(false);
-    };
-    
-    if (audioElement) {
-      audioElement.addEventListener('ended', handleEnded);
-    }
-    
-    return () => {
-      if (audioElement) {
-        audioElement.removeEventListener('ended', handleEnded);
-      }
-    };
-  }, [audioRef.current]);
-
-  const handlePlay = async (ayahNumber: number) => {
-    if (!selectedReciterId) {
-      toast({
-        title: "No reciter selected",
-        description: "Please select a reciter from the Audio tab to play recitations",
-      });
-      return;
-    }
-    
-    try {
-      // If already playing this ayah, toggle pause/play
-      if (currentlyPlaying === ayahNumber) {
-        if (audioRef.current) {
-          if (isPaused) {
-            await audioRef.current.play();
-            setIsPaused(false);
-          } else {
-            audioRef.current.pause();
-            setIsPaused(true);
-          }
-        }
-        return;
-      }
-      
-      // If playing a different ayah, stop current and play new
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      
-      // Set loading state
-      setIsLoading(prev => ({ ...prev, [ayahNumber]: true }));
-      setError(prev => ({ ...prev, [ayahNumber]: '' }));
-      
-      // Always create a new audio element to avoid caching issues
-      audioRef.current = new Audio();
-      
-      // Get audio URL
-      const audioUrl = getAudioUrl(selectedReciterId, surahNumber, ayahNumber);
-      
-      if (!audioUrl) {
-        throw new Error("Could not generate audio URL");
-      }
-      
-      console.log("Attempting to play audio from URL:", audioUrl);
-      
-      // Set new audio source
-      audioRef.current.src = audioUrl;
-      audioRef.current.preload = "auto";
-      audioRef.current.volume = 0.8;
-      
-      // Try to play the audio with error handling
-      try {
-        await audioRef.current.play();
-        setCurrentlyPlaying(ayahNumber);
-        setIsPaused(false);
-        
-        const selectedReciter = RECITERS_DATABASE.find(r => r.id === selectedReciterId);
-        
-        toast({
-          title: "Playing ayah",
-          description: `Now playing Surah ${surahNumber}, Ayah ${ayahNumber} by ${selectedReciter?.name || 'Selected Reciter'}`,
-        });
-      } catch (error) {
-        console.error("Audio playback error:", error);
-        
-        // Retry with another URL format as fallback
-        try {
-          const fallbackUrl = `https://verses.quran.com/Alafasy/${surahNumber}:${ayahNumber}.mp3`;
-          console.log("Trying fallback URL:", fallbackUrl);
-          
-          if (audioRef.current) {
-            audioRef.current.src = fallbackUrl;
-            audioRef.current.load();
-            await audioRef.current.play();
-            setCurrentlyPlaying(ayahNumber);
-            setIsPaused(false);
-          }
-        } catch (fallbackError) {
-          console.error("Fallback audio playback error:", fallbackError);
-          setError(prev => ({ 
-            ...prev, 
-            [ayahNumber]: "Could not play audio. Check your internet connection or try another reciter." 
-          }));
-          throw fallbackError;
-        }
-      }
-    } catch (err) {
-      console.error("Audio handling error:", err);
-      toast({
-        variant: "destructive",
-        title: "Audio Error",
-        description: err instanceof Error ? err.message : "Failed to play audio",
-      });
-    } finally {
-      setIsLoading(prev => ({ ...prev, [ayahNumber]: false }));
-    }
-  };
-
-  const handleBookmark = (ayahNumber: number) => {
+  // Handle search result selection
+  const handleSearchResultSelect = (surah: number, ayah: number) => {
+    setSurahNumber(surah);
+    setJumpToAyah(ayah);
+    setSearchOpen(false);
     toast({
-      title: "Ayah bookmarked",
-      description: `Surah ${surahNumber}, Ayah ${ayahNumber} has been saved to your bookmarks`,
+      title: "Navigating to verse",
+      description: `Surah ${surah}, Ayah ${ayah}`
     });
   };
 
-  const handleShare = (ayahNumber: number) => {
-    if (!surah) return;
-    
-    const ayah = surah.ayahs.find(a => a.numberInSurah === ayahNumber);
-    if (!ayah) return;
-    
-    navigator.clipboard.writeText(`${ayah.text}\n\n${ayah.translation}\n\nSurah ${surah.englishName}, Ayah ${ayahNumber}`);
-    
-    toast({
-      title: "Ayah copied to clipboard",
-      description: "You can now share it with others",
-    });
-  };
-
-  const handleDownload = (reciterId?: string) => {
-    const reciterToDownload = reciterId || selectedReciterId;
-    
-    if (!reciterToDownload) {
-      toast({
-        variant: "destructive",
-        title: "Download Error",
-        description: "Please select a reciter first",
+  // Handle bookmark changes from QuranPlayer
+  const handleBookmarkChange = (
+    isBookmarked: boolean, 
+    surahNumber: number, 
+    ayahNumber: number, 
+    text: string, 
+    translation: string
+  ) => {
+    if (isBookmarked) {
+      addBookmark({
+        surahNumber,
+        surahName: "", // Will be filled by the API in real implementation
+        englishName: "", // Will be filled by the API in real implementation
+        ayahNumber,
+        text,
+        translation
       });
-      return;
+    } else {
+      removeBookmark(surahNumber, ayahNumber);
     }
-    
-    const selectedReciter = RECITERS_DATABASE.find(r => r.id === reciterToDownload);
-    
-    toast({
-      title: "Downloading Recitations",
-      description: `${selectedReciter?.name || 'Selected reciter'}'s recitation of Surah ${surah?.englishName || surahNumber} will be available offline shortly.`,
-    });
   };
 
+  // Handle showing tafsir for a specific ayah
+  const showTafsirForAyah = (surah: number, ayah: number) => {
+    setSelectedAyahForTafsir({ surah, ayah });
+  };
+
+  // Get font class for Arabic text
   const fontClass = {
     indopak: "font-indopak",
     uthmani: "font-uthmani",
     tajweed: "font-tajweed"
   }[selectedFont] || "font-uthmani";
 
-  // Function to render the play button with appropriate icon based on state
-  const renderPlayButton = (ayahNumber: number) => {
-    if (isLoading[ayahNumber]) {
-      return <Loader2 className="h-5 w-5 animate-spin" />;
-    }
-    
-    if (currentlyPlaying === ayahNumber) {
-      return isPaused ? <Volume2 className="h-5 w-5" /> : <Pause className="h-5 w-5" />;
-    }
-    
-    return <Headphones className="h-5 w-5" />;
-  };
-
-  // Create or update audio element
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.preload = "auto"; // Preload audio data
-    }
-    
-    // Set default volume to ensure it's not muted
-    if (audioRef.current) {
-      audioRef.current.volume = 0.8;
-    }
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, []);
-
   return (
     <motion.div 
-      className="p-4 pb-24 max-w-lg mx-auto"
+      className={`p-4 ${isMobile ? 'pb-24' : 'pb-8'} max-w-4xl mx-auto`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      id="main-content"
     >
-      <div className="flex items-center mb-6">
-        <div className="bg-islamic-green rounded-xl p-3 mr-4">
-          <Book className="h-8 w-8 text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold">Quran</h1>
-          {!isSurahLoading && surah && (
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="bg-islamic-green rounded-xl p-3 mr-4">
+            <Book className="h-8 w-8 text-white" />
+          </div>
+          <div className="text-left">
+            <h1 className="text-2xl font-bold">Quran</h1>
             <p className="text-sm text-gray-500">
-              Surah {surah.number}: {surah.englishName}
+              Read, listen, and study the Holy Quran
             </p>
-          )}
+          </div>
         </div>
+        
+        {/* Quick action buttons for mobile */}
+        {isMobile && (
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search Quran"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setBookmarksOpen(true)}
+              aria-label="Your bookmarks"
+              className="relative"
+            >
+              <Bookmark className="h-5 w-5" />
+              {bookmarks.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-islamic-green text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {bookmarks.length}
+                </span>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
-      <Tabs defaultValue="read" className="mb-6">
-        <TabsList className="grid grid-cols-3 mb-4">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={setActiveTab} 
+        className="mb-6"
+      >
+        <TabsList className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-4'} mb-4`}>
           <TabsTrigger value="read">Read</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="audio">Audio</TabsTrigger>
+          {!isMobile && <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="settings" className="space-y-4">
@@ -355,7 +264,9 @@ const QuranModule: React.FC = () => {
                           <SelectItem key={font.id} value={font.id}>
                             <div className="flex items-center">
                               <span>{font.name}</span>
-                              <span className="ml-2 text-sm opacity-70">{font.preview}</span>
+                              <span className={`ml-2 text-sm opacity-70 ${font.id === 'indopak' ? 'font-indopak' : font.id === 'tajweed' ? 'font-tajweed' : 'font-uthmani'}`}>
+                                {font.preview}
+                              </span>
                             </div>
                           </SelectItem>
                         ))}
@@ -409,7 +320,11 @@ const QuranModule: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="surah-select">Surah</Label>
-                  <Select value={surahNumber.toString()} onValueChange={(value) => setSurahNumber(parseInt(value))}>
+                  <Select value={surahNumber.toString()} onValueChange={(value) => {
+                    setSurahNumber(parseInt(value));
+                    setJumpToAyah(undefined);
+                    setActiveTab("read");
+                  }}>
                     <SelectTrigger id="surah-select" className="w-full">
                       <SelectValue placeholder="Select a surah" />
                     </SelectTrigger>
@@ -483,8 +398,13 @@ const QuranModule: React.FC = () => {
               <div className="mt-4">
                 <Button 
                   variant="outline" 
-                  className="w-full" 
-                  onClick={() => handleDownload()}
+                  className="w-full mobile-touch-target" 
+                  onClick={() => {
+                    toast({
+                      title: "Download Recitation",
+                      description: "Recitations will be available offline (feature coming soon)",
+                    });
+                  }}
                   disabled={!selectedReciterId}
                 >
                   <Download className="mr-2 h-4 w-4" /> Download Selected Reciter
@@ -493,133 +413,152 @@ const QuranModule: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="bookmarks">
+          {!isMobile && (
+            <Card>
+              <CardContent className="pt-6">
+                <BookmarksPanel 
+                  bookmarks={bookmarks}
+                  onSelectBookmark={(surah, ayah) => {
+                    setSurahNumber(surah);
+                    setJumpToAyah(ayah);
+                    setActiveTab("read");
+                  }}
+                  onRemoveBookmark={removeBookmark}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
         <TabsContent value="read">
-          {isSurahLoading && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 text-islamic-green animate-spin mb-4" />
-              <p>Loading Quran content...</p>
+          {/* Quick action buttons for desktop */}
+          {!isMobile && (
+            <div className="flex justify-end mb-4 space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setSearchOpen(true)}
+                className="flex items-center"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Search Quran
+              </Button>
             </div>
           )}
 
-          {isSurahError && (
-            <Alert variant="destructive">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                {surahError instanceof Error ? surahError.message : "Failed to load Quran content. Please try again."}
-              </AlertDescription>
-            </Alert>
-          )}
+          <QuranPlayer
+            surahNumber={surahNumber}
+            defaultTranslation={selectedTranslation as keyof typeof TRANSLATION_MAP}
+            defaultReciterId={selectedReciterId}
+            jumpToAyah={jumpToAyah}
+            onBookmarkChange={handleBookmarkChange}
+            isAyahBookmarked={isBookmarked}
+          />
 
-          {!isSurahLoading && !isSurahError && surah && (
-            <div className="space-y-6">
-              {surah.ayahs.map((ayah) => (
-                <Card key={ayah.numberInSurah} className={`overflow-hidden transition-shadow ${currentlyPlaying === ayah.numberInSurah ? 'ring-1 ring-islamic-green shadow-lg' : ''}`}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="bg-islamic-gold/20 text-islamic-gold font-medium rounded-full w-8 h-8 flex items-center justify-center">
-                        {ayah.numberInSurah}
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handlePlay(ayah.numberInSurah)}
-                          className={`transition-all ${
-                            currentlyPlaying === ayah.numberInSurah ? (isPaused ? "text-islamic-green/50" : "text-islamic-green") : ""
-                          }`}
-                          disabled={isLoading[ayah.numberInSurah]}
-                        >
-                          {renderPlayButton(ayah.numberInSurah)}
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleBookmark(ayah.numberInSurah)}
-                        >
-                          <Heart className="h-5 w-5" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleShare(ayah.numberInSurah)}
-                        >
-                          <Share2 className="h-5 w-5" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <p className={`text-right text-2xl leading-loose mb-3 ${fontClass}`}>
-                      {ayah.text}
-                    </p>
-                    
-                    {showTranslation && (
-                      <>
-                        <Separator className="my-3" />
-                        <p className="text-gray-700 dark:text-gray-300">{ayah.translation}</p>
-                        <p className="text-xs text-gray-500 mt-1">Source: {ayah.translationSource}</p>
-                      </>
-                    )}
-                    
-                    {showTafsir && (
-                      <>
-                        <Separator className="my-3" />
-                        <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md">
-                          <h4 className="text-sm font-medium mb-1 flex items-center">
-                            <BookOpen className="h-4 w-4 mr-1" /> Tafsir
-                          </h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {/* Tafsir content would be fetched from an API in a real app */}
-                            This is where the tafsir content would appear when properly fetched from an API.
-                          </p>
-                        </div>
-                      </>
-                    )}
-                    
-                    {error[ayah.numberInSurah] && (
-                      <Alert variant="destructive" className="mt-3">
-                        <VolumeX className="h-4 w-4" />
-                        <AlertTitle>Audio Error</AlertTitle>
-                        <AlertDescription>
-                          {error[ayah.numberInSurah]}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+          {showTafsir && (
+            <div className="mt-6">
+              <QuranTafsir 
+                surahNumber={surahNumber} 
+                ayahNumber={jumpToAyah || 1} 
+                tafsirSource={TAFSIRS.find(t => t.id === selectedTafsir)?.name || "Tafsir"} 
+              />
             </div>
           )}
         </TabsContent>
       </Tabs>
-
-      {surah && (
-        <div className="fixed bottom-20 left-0 right-0 flex justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg px-4 py-2 flex space-x-8">
+      
+      {/* Fixed bottom navigation for mobile */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t mobile-nav-container">
+          <div className="flex justify-around items-center">
             <Button 
               variant="ghost" 
-              size="sm" 
-              disabled={surahNumber <= 1}
-              onClick={() => setSurahNumber(prev => Math.max(1, prev - 1))}
+              className="flex flex-col items-center py-2"
+              onClick={() => setActiveTab("read")}
             >
-              Previous Surah
+              <Book className={`h-5 w-5 ${activeTab === "read" ? "text-islamic-green" : ""}`} />
+              <span className="text-xs mt-1">Read</span>
             </Button>
+            
             <Button 
               variant="ghost" 
-              size="sm"
-              disabled={surahNumber >= 114}
-              onClick={() => setSurahNumber(prev => Math.min(114, prev + 1))}
+              className="flex flex-col items-center py-2"
+              onClick={() => setActiveTab("audio")}
             >
-              Next Surah
+              <Headphones className={`h-5 w-5 ${activeTab === "audio" ? "text-islamic-green" : ""}`} />
+              <span className="text-xs mt-1">Audio</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              className="flex flex-col items-center py-2"
+              onClick={() => setActiveTab("settings")}
+            >
+              <Type className={`h-5 w-5 ${activeTab === "settings" ? "text-islamic-green" : ""}`} />
+              <span className="text-xs mt-1">Settings</span>
             </Button>
           </div>
         </div>
       )}
       
-      {/* Hidden audio element for accessibility */}
-      <div className="hidden">
-        <audio ref={audioRef} />
-      </div>
+      {/* Search dialog/sheet */}
+      {isMobile ? (
+        <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
+          <SheetContent side="bottom" className="h-[80vh]">
+            <SheetHeader className="text-left mb-4">
+              <SheetTitle>Search Quran</SheetTitle>
+            </SheetHeader>
+            <QuranSearch onSelect={handleSearchResultSelect} />
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogTitle>Search Quran</DialogTitle>
+            <QuranSearch onSelect={handleSearchResultSelect} />
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {/* Bookmarks sheet for mobile */}
+      {isMobile && (
+        <Sheet open={bookmarksOpen} onOpenChange={setBookmarksOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-md">
+            <SheetHeader className="text-left mb-4">
+              <SheetTitle>Your Bookmarks</SheetTitle>
+            </SheetHeader>
+            <BookmarksPanel 
+              bookmarks={bookmarks}
+              onSelectBookmark={(surah, ayah) => {
+                setSurahNumber(surah);
+                setJumpToAyah(ayah);
+                setActiveTab("read");
+                setBookmarksOpen(false);
+              }}
+              onRemoveBookmark={removeBookmark}
+              onClose={() => setBookmarksOpen(false)}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
+      
+      {/* Tafsir dialog */}
+      <Dialog 
+        open={!!selectedAyahForTafsir} 
+        onOpenChange={(open) => !open && setSelectedAyahForTafsir(null)}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogTitle>Tafsir</DialogTitle>
+          {selectedAyahForTafsir && (
+            <QuranTafsir 
+              surahNumber={selectedAyahForTafsir.surah} 
+              ayahNumber={selectedAyahForTafsir.ayah} 
+              tafsirSource={TAFSIRS.find(t => t.id === selectedTafsir)?.name || "Tafsir"} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
