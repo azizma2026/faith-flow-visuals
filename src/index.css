@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -88,6 +89,37 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* High Contrast Mode */
+  .high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 60 100% 50%; /* Bright yellow for maximum contrast */
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 60 100% 50%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 100%;
+
+    --accent: 60 100% 50%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 0%;
+
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 60 100% 50%;
+  }
 }
 
 @layer utilities {
@@ -122,6 +154,29 @@
   .pulse-animation {
     animation: gentle-pulse 3s infinite ease-in-out;
   }
+  
+  /* Font size utilities for accessibility */
+  .text-size-normal {
+    font-size: 1rem;
+  }
+  
+  .text-size-large {
+    font-size: 1.25rem;
+  }
+  
+  .text-size-x-large {
+    font-size: 1.5rem;
+  }
+  
+  /* Focus indicators for keyboard navigation */
+  .focus-visible:focus-visible {
+    @apply outline-2 outline-offset-2 outline-islamic-gold;
+  }
+  
+  /* Skip to content link for screen readers */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-islamic-gold focus:rounded-md;
+  }
 }
 
 @layer base {
@@ -132,4 +187,46 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Accessibility improvements */
+  a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]) {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-islamic-gold;
+  }
+}
+
+/* Font size modifier classes based on accessibility settings */
+.font-size-normal {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.font-size-large {
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.font-size-x-large {
+  font-size: 1.5rem;
+  line-height: 1.7;
+}
+
+/* High contrast specific overrides */
+.high-contrast button {
+  @apply border-2 border-white;
+}
+
+.high-contrast a {
+  @apply underline;
+}
+
+.high-contrast input, .high-contrast select, .high-contrast textarea {
+  @apply border-2 border-white bg-black text-white;
+}
+
+.high-contrast .feature-icon {
+  @apply bg-black border-white;
+}
+
+.high-contrast .prayer-countdown {
+  @apply bg-black border-2 border-white;
 }

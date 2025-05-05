@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AccessibilityProvider } from "./contexts/AccessibilityContext";
+import SkipToContent from "./components/SkipToContent";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import QuranEngagement from "./pages/QuranEngagement";
@@ -22,30 +24,33 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Toaster />
-          <Sonner />
-          <ModuleWrapper />
-          <div className="min-h-screen bg-background">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/quran-engagement" element={<QuranEngagement />} />
-              <Route path="/sadqa-jaria" element={<SadqaJaria />} />
-              <Route path="/daily-verse" element={<DailyVerse />} />
-              <Route path="/islamic-themes" element={<IslamicThemes />} />
-              <Route path="/islamic-quiz" element={<IslamicQuiz />} />
-              <Route path="/salah-guide" element={<SalahGuide />} />
-              <Route path="/certificates" element={<Certificates />} />
-              <Route path="/tip-developer" element={<TipDeveloper />} />
-              <Route path="/islamic-channels" element={<ChannelsModule />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
-    </LanguageProvider>
+    <AccessibilityProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <SkipToContent />
+            <Toaster />
+            <Sonner />
+            <ModuleWrapper />
+            <div className="min-h-screen bg-background" id="main-content">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/quran-engagement" element={<QuranEngagement />} />
+                <Route path="/sadqa-jaria" element={<SadqaJaria />} />
+                <Route path="/daily-verse" element={<DailyVerse />} />
+                <Route path="/islamic-themes" element={<IslamicThemes />} />
+                <Route path="/islamic-quiz" element={<IslamicQuiz />} />
+                <Route path="/salah-guide" element={<SalahGuide />} />
+                <Route path="/certificates" element={<Certificates />} />
+                <Route path="/tip-developer" element={<TipDeveloper />} />
+                <Route path="/islamic-channels" element={<ChannelsModule />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
+    </AccessibilityProvider>
   </QueryClientProvider>
 );
 

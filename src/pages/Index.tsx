@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -8,8 +9,10 @@ import IconCarousel from "@/components/IconCarousel";
 import PageNavigation from "@/components/PageNavigation";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import LanguageSelector from "@/components/LanguageSelector";
+import AccessibilitySettings from "@/components/AccessibilitySettings";
 import { getGregorianDate, getHijriDate, getCurrentTime } from "@/utils/dateUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
@@ -19,6 +22,7 @@ const Index = () => {
   const gregorianDate = getGregorianDate();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { currentLanguage } = useLanguage();
+  const { fontSize } = useAccessibility();
   
   // Update time every minute
   useEffect(() => {
@@ -64,7 +68,7 @@ const Index = () => {
 
   return (
     <motion.div 
-      className={`min-h-screen ${isDarkMode ? 'dark bg-islamic-dark-navy' : 'mosque-silhouette-bg'}`}
+      className={`min-h-screen ${isDarkMode ? 'dark bg-islamic-dark-navy' : 'mosque-silhouette-bg'} font-size-${fontSize}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -86,6 +90,8 @@ const Index = () => {
           <PrayerTimer className="mb-6" />
           
           <IconCarousel onSelect={handleIconSelect} className="mb-6" />
+          
+          <AccessibilitySettings />
           
           <Accordion type="single" collapsible className="mb-6 space-y-4">
             <AccordionItem value="general" className="border rounded-lg overflow-hidden">
@@ -114,7 +120,7 @@ const Index = () => {
           />
         </main>
 
-        <div className="fixed bottom-4 left-4">
+        <div className="fixed bottom-4 left-4 flex space-x-2">
           <DarkModeToggle isDarkMode={isDarkMode} onToggle={toggleDarkMode} />
         </div>
         <div className="fixed bottom-4 right-4">
