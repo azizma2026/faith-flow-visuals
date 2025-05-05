@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -7,8 +6,8 @@ import {
   Sun, 
   Bell, 
   BellOff, 
-  FontSize,
-  Language,
+  Type,
+  Globe,
   Wifi,
   WifiOff,
   CloudDownload,
@@ -247,7 +246,7 @@ const SettingsModule: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <FontSize className="h-5 w-5" />
+                  <Type className="h-5 w-5" />
                   <Label htmlFor="font-size">Font Size</Label>
                 </div>
                 <ToggleGroup 

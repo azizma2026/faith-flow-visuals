@@ -20,6 +20,8 @@ const AccessibilitySettings: React.FC = () => {
     toggleScreenReaderMode
   } = useAccessibility();
 
+  const fontSizeValue = typeof fontSize === 'string' ? fontSize : fontSize.toString();
+
   return (
     <motion.div
       className="p-4 bg-card rounded-lg shadow-md"
@@ -65,7 +67,7 @@ const AccessibilitySettings: React.FC = () => {
                 <Label className="font-medium">Font Size</Label>
               </div>
               <RadioGroup 
-                value={fontSize} 
+                value={fontSizeValue}
                 onValueChange={(value) => setFontSize(value as 'normal' | 'large' | 'x-large')}
                 className="flex flex-col space-y-2 mt-2"
               >
