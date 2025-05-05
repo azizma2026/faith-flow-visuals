@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useCombinedSurah } from "@/api/quranClient";
 import { 
@@ -8,9 +9,10 @@ import {
 } from "@/api/quranClient";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
-import { BookmarkIcon, Loader2 } from "lucide-react";
+import { BookmarkIcon, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface QuranPlayerProps {
   surahNumber: number;
@@ -37,6 +39,9 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   const [reciterId, setReciterId] = useState(defaultReciterId);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [fallbackAttempted, setFallbackAttempted] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
   const isMobile = useIsMobile();
   const { fontSize } = useAccessibility();
   
@@ -46,8 +51,20 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   const { data: surahData, isLoading, isError } = useCombinedSurah(surahNumber, translationEdition);
 
   const currentAyah = surahData?.ayahs[ayahIndex];
+  
+  // Primary audio URL
   const audioUrl = currentAyah ? getAudioUrl(reciterId, surahNumber, currentAyah.numberInSurah) : "";
-
+  
+  // Fallback audio URLs for different reciters
+  const fallbackReciters = ["Alafasy", "Abdul_Basit_Murattal", "Minshawi_Mujawwad"];
+  const getFallbackAudioUrl = () => {
+    // Pick a different reciter as fallback
+    if (currentAyah) {
+      const fallbackReciter = fallbackReciters.find(r => r !== reciterId) || "Alafasy";
+      return getAudioUrl(fallbackReciter, surahNumber, currentAyah.numberInSurah);
+    }
+    return "";
+  };
   
   useEffect(() => {
     if (jumpToAyah && surahData && jumpToAyah <= surahData.ayahs.length) {
@@ -75,58 +92,87 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   }, [ayahIndex, onAyahChange, currentAyah]);
 
   
-  const handleAudioPlay = () => {
+  const handleAudioPlay = (url: string = audioUrl) => {
+    if (!url) return;
+    
+    setAudioLoading(true);
     setPlaybackError(null);
+    setIsRetrying(false);
+    
     if (audioRef.current) {
+      audioRef.current.src = url;
       audioRef.current.load();
+      
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          setPlaybackError(
-            "Could not play audio. Try another reciter, or check your internet connection."
-          );
-        });
+        playPromise
+          .then(() => {
+            setAudioLoading(false);
+            setFallbackAttempted(false); // Reset fallback status on successful play
+            console.log(`Playing audio successfully from: ${url}`);
+          })
+          .catch((err) => {
+            console.error("Audio playback error:", err);
+            setAudioLoading(false);
+            setPlaybackError(
+              "Could not play audio. Try another reciter, or check your internet connection."
+            );
+          });
       }
     }
   };
 
+  // Handle trying a fallback reciter
+  const tryFallbackReciter = () => {
+    setFallbackAttempted(true);
+    const fallbackUrl = getFallbackAudioUrl();
+    console.log(`Trying fallback audio URL: ${fallbackUrl}`);
+    
+    // Attempt to change to a different reciter in UI
+    const fallbackReciter = fallbackReciters.find(r => r !== reciterId) || "Alafasy";
+    setReciterId(fallbackReciter);
+    
+    toast({
+      title: "Trying alternate reciter",
+      description: `Switched to ${RECITERS_DATABASE.find(r => r.id === fallbackReciter)?.name || fallbackReciter}`
+    });
+    
+    // Try to play using fallback
+    handleAudioPlay(fallbackUrl);
+  };
   
+  // Retry current audio with refreshed connection
+  const retryAudio = () => {
+    setIsRetrying(true);
+    
+    // Force browser to fetch a fresh copy
+    const refreshedUrl = `${audioUrl}${audioUrl.includes('?') ? '&' : '?'}refresh=${Date.now()}`;
+    console.log("Retrying with refreshed URL:", refreshedUrl);
+    
+    toast({
+      title: "Retrying audio playback",
+      description: "Attempting to reconnect to audio server..."
+    });
+    
+    setTimeout(() => {
+      handleAudioPlay(refreshedUrl);
+    }, 1000);
+  };
+  
+  // Initialize or change audio source
   useEffect(() => {
     if (audioUrl && audioRef.current) {
+      setFallbackAttempted(false); // Reset when URL changes
       handleAudioPlay();
     }
     // eslint-disable-next-line
   }, [audioUrl, reciterId, ayahIndex]);
 
-  
-  const toggleBookmark = () => {
-    if (!currentAyah) return;
-    
-    const newBookmarkState = !bookmarked;
-    setBookmarked(newBookmarkState);
-    
-    if (onBookmarkChange) {
-      onBookmarkChange(
-        newBookmarkState,
-        surahNumber,
-        currentAyah.numberInSurah,
-        currentAyah.text,
-        currentAyah.translation
-      );
-    }
-    
-    toast({
-      title: newBookmarkState ? "Ayah bookmarked" : "Bookmark removed",
-      description: newBookmarkState 
-        ? `Saved Surah ${surahNumber}, Ayah ${currentAyah.numberInSurah} to your bookmarks`
-        : `Removed from your bookmarks`,
-    });
-  };
-
   if (isLoading) return <p>Loading Surah...</p>;
   if (isError || !surahData) return <p>Failed to load Surah data.</p>;
 
   
+  // Safely convert fontSize to a number
   const fontSizeValue = typeof fontSize === 'number' ? fontSize : 0;
   
   const arabicTextSizeClass = isMobile 
@@ -175,23 +221,56 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
           <strong>Translation:</strong> {currentAyah?.translation}
         </p>
         
-        <audio
-          key={audioUrl}
-          src={audioUrl}
-          ref={audioRef}
-          autoPlay
-          controls
-          className="w-full mt-4"
-          onError={() =>
-            setPlaybackError(
+        <div className="relative mt-4">
+          <audio
+            key={audioUrl}
+            ref={audioRef}
+            src={audioUrl}
+            controls
+            className={`w-full ${playbackError ? 'opacity-60' : ''}`}
+            onError={() => setPlaybackError(
               "Could not play audio. Try another reciter, or check your internet connection."
-            )
-          }
-        />
+            )}
+          />
+          
+          {audioLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/20 rounded">
+              <Loader2 className="h-6 w-6 animate-spin text-islamic-green" />
+            </div>
+          )}
+        </div>
 
         {playbackError && (
-          <div className="text-destructive bg-destructive/10 p-3 rounded-md mt-3">
-            <p className="font-medium">Audio Error: {playbackError}</p>
+          <div className="mt-3">
+            <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <AlertDescription className="flex flex-col space-y-2">
+                <p>{playbackError}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {!fallbackAttempted && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-card text-primary"
+                      onClick={tryFallbackReciter}
+                      disabled={isRetrying}
+                    >
+                      Try different reciter
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-card text-primary" 
+                    onClick={retryAudio}
+                    disabled={isRetrying}
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                    Retry
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
           </div>
         )}
       </div>
@@ -266,6 +345,31 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
       )}
     </div>
   );
+  
+  // Helper function to toggle bookmark status
+  function toggleBookmark() {
+    if (!currentAyah) return;
+    
+    const newBookmarkState = !bookmarked;
+    setBookmarked(newBookmarkState);
+    
+    if (onBookmarkChange) {
+      onBookmarkChange(
+        newBookmarkState,
+        surahNumber,
+        currentAyah.numberInSurah,
+        currentAyah.text,
+        currentAyah.translation
+      );
+    }
+    
+    toast({
+      title: newBookmarkState ? "Ayah bookmarked" : "Bookmark removed",
+      description: newBookmarkState 
+        ? `Saved Surah ${surahNumber}, Ayah ${currentAyah.numberInSurah} to your bookmarks`
+        : `Removed from your bookmarks`,
+    });
+  }
 };
 
 export default QuranPlayer;

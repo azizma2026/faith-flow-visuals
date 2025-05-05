@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import type { Channel } from "../ChannelsModule";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
 
 type ChannelPlayerProps = {
   channel: Channel;
@@ -23,6 +23,7 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [streamStatus, setStreamStatus] = useState<"loading" | "playing" | "error">("loading");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     // Reset status when channel changes
@@ -64,6 +65,57 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
       };
     }
   }, [channel, onMediaError]);
+
+  // Function to manually refresh the stream
+  const refreshStream = () => {
+    setIsRefreshing(true);
+    
+    // For audio streams
+    if (audioRef.current) {
+      const currentTime = audioRef.current.currentTime;
+      
+      // Force reload with cache-busting
+      const originalSrc = channel.url;
+      const refreshedSrc = `${originalSrc}${originalSrc.includes('?') ? '&' : '?'}refresh=${Date.now()}`;
+      
+      audioRef.current.src = refreshedSrc;
+      audioRef.current.load();
+      
+      // Attempt to play after loading
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setStreamStatus("playing");
+            setIsRefreshing(false);
+          })
+          .catch(() => {
+            setStreamStatus("error");
+            setIsRefreshing(false);
+            onMediaError();
+          });
+      }
+    }
+    
+    // For iframe streams, reload the iframe
+    if (iframeRef.current) {
+      try {
+        const iframe = iframeRef.current;
+        const src = iframe.src;
+        
+        // Add timestamp to force refresh
+        iframe.src = '';
+        setTimeout(() => {
+          iframe.src = `${src}${src.includes('?') ? '&' : '?'}refresh=${Date.now()}`;
+          setIsRefreshing(false);
+        }, 1000);
+      } catch (err) {
+        console.error("Error refreshing iframe:", err);
+        setIsRefreshing(false);
+        onMediaError();
+      }
+    }
+  };
 
   return (
     <div className="rounded-lg bg-gray-50 dark:bg-islamic-blue/20 p-4 shadow-lg text-center">
@@ -109,24 +161,34 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
         <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md p-3 mb-3 flex items-center">
           <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
           <p>
-            This stream is currently unavailable. Please try the fallback
-            source or select another channel.
+            This stream is currently unavailable. Please try refreshing the connection,
+            using the fallback source, or selecting another channel.
           </p>
         </div>
       )}
       
       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{channel.description}</p>
       
-      <div className="flex justify-center space-x-2 mt-2">
+      <div className="flex flex-wrap justify-center gap-2 mt-2">
         <button
-          className="text-sm text-islamic-gold underline"
+          className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md flex items-center"
+          onClick={refreshStream}
+          disabled={isRefreshing}
+        >
+          <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Refresh Stream
+        </button>
+        
+        <button
+          className="text-sm text-islamic-gold px-3 py-1 bg-islamic-gold/10 hover:bg-islamic-gold/20 rounded-md"
           onClick={onChooseAnother}
         >
           Choose another channel
         </button>
+        
         {channel.fallbackUrl && channel.url !== channel.fallbackUrl && (
           <button
-            className="text-sm text-islamic-blue underline"
+            className="text-sm text-islamic-blue px-3 py-1 bg-islamic-blue/10 hover:bg-islamic-blue/20 rounded-md"
             onClick={onTryFallback}
           >
             Try alternative source
