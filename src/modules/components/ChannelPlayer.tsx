@@ -24,10 +24,12 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [streamStatus, setStreamStatus] = useState<"loading" | "playing" | "error">("loading");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [audioErrorCount, setAudioErrorCount] = useState(0);
 
   useEffect(() => {
     // Reset status when channel changes
     setStreamStatus("loading");
+    setAudioErrorCount(0);
     
     const iframe = iframeRef.current;
     const audio = audioRef.current;
@@ -52,8 +54,24 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
       
       const handleError = () => {
         console.error(`${channel.name} audio stream error`);
-        setStreamStatus("error");
-        onMediaError();
+        setAudioErrorCount(prev => prev + 1);
+        
+        // Only set error status and notify after multiple attempts
+        if (audioErrorCount >= 2) {
+          setStreamStatus("error");
+          onMediaError();
+        } else {
+          // Try to reload the audio on first error
+          if (audio) {
+            console.log("Attempting to reload audio stream automatically...");
+            audio.load();
+            audio.play().catch(err => {
+              console.error("Auto-reload failed:", err);
+              setStreamStatus("error");
+              onMediaError();
+            });
+          }
+        }
       };
       
       audio.addEventListener('canplay', handleCanPlay);
@@ -64,11 +82,12 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
         audio.removeEventListener('error', handleError);
       };
     }
-  }, [channel, onMediaError]);
+  }, [channel, onMediaError, audioErrorCount]);
 
   // Function to manually refresh the stream
   const refreshStream = () => {
     setIsRefreshing(true);
+    setAudioErrorCount(0); // Reset error count on manual refresh
     
     // For audio streams
     if (audioRef.current) {
@@ -147,7 +166,10 @@ const ChannelPlayer: React.FC<ChannelPlayerProps> = ({
           controls
           autoPlay
           className="w-full mb-3 rounded"
-          onError={onMediaError}
+          onError={() => {
+            // This is just an additional error handler besides the useEffect
+            console.error(`Audio error triggered via onError prop`);
+          }}
         />
       )}
       

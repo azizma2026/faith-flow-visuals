@@ -25,7 +25,7 @@ export type ModuleType =
   | 'hajjGuide'
   | 'knowledgeTests'
   | 'settings'
-  | 'namesOfAllah'; // Added the new module
+  | 'namesOfAllah';
 
 interface NavigationState {
   activeModule: ModuleType;

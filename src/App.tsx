@@ -19,6 +19,9 @@ import Certificates from "./modules/CertificatesModule";
 import TipDeveloper from "./modules/TipDeveloperModule";
 import ChannelsModule from "./modules/ChannelsModule";
 import SettingsModule from "./modules/SettingsModule";
+import TasbeehModule from "./modules/TasbeehModule";
+import PrayerTimesModule from "./modules/PrayerTimesModule";
+import QiblaModule from "./modules/QiblaModule";
 import ModuleWrapper from "./components/ModuleWrapper";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,9 @@ const App = () => (
                 <Route path="/tip-developer" element={<TipDeveloper />} />
                 <Route path="/islamic-channels" element={<ChannelsModule />} />
                 <Route path="/settings" element={<SettingsModule />} />
+                <Route path="/tasbeeh" element={<TasbeehModule />} />
+                <Route path="/prayer-times" element={<PrayerTimesModule />} />
+                <Route path="/qibla" element={<QiblaModule />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
