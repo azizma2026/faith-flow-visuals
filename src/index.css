@@ -177,6 +177,17 @@
   .skip-link {
     @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-islamic-gold focus:rounded-md;
   }
+  
+  /* Mosque-themed styles */
+  .mosque-bg {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50 0 L90 40 L80 40 L80 100 L20 100 L20 40 L10 40 Z' fill='%23564f47' fill-opacity='0.2'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+  
+  .font-arabic {
+    font-family: 'Scheherazade New', 'Amiri', serif;
+    direction: rtl;
+  }
 }
 
 @layer base {
@@ -230,3 +241,6 @@
 .high-contrast .prayer-countdown {
   @apply bg-black border-2 border-white;
 }
+
+/* Adding Arabic font for prayer times */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');

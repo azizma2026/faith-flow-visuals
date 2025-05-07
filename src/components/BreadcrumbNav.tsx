@@ -43,19 +43,19 @@ const BreadcrumbNav: React.FC = () => {
   const displayName = moduleDisplayNames[activeModule] || activeModule;
   
   return (
-    <Breadcrumb className="py-2 px-4 bg-background/50 backdrop-blur-sm rounded-lg">
+    <Breadcrumb className="py-2 px-4 bg-[#f5f0e8]/80 backdrop-blur-sm rounded-lg shadow-sm border border-[#e2d1c3]">
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink onClick={goBack} className="flex items-center">
+          <BreadcrumbLink onClick={goBack} className="flex items-center text-[#564f47] hover:text-[#b4a89a]">
             <Home className="h-4 w-4 mr-1" />
             Home
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 text-[#b4a89a]" />
         </BreadcrumbSeparator>
         <BreadcrumbItem>
-          <BreadcrumbPage>{displayName}</BreadcrumbPage>
+          <BreadcrumbPage className="font-medium text-[#564f47]">{displayName}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

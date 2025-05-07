@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Clock, Volume2, VolumeX, MapPin, Bell, Settings, Calendar } from "lucide-react";
+import { Clock, Volume2, VolumeX, MapPin, Bell, Settings, Calendar, CloudSun, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +18,7 @@ interface PrayerTime {
   time: string;
   timestamp: number;
   notificationEnabled?: boolean;
+  icon?: React.ReactNode;
 }
 
 interface PrayerCalendarEntry {
@@ -42,6 +42,24 @@ const CALCULATION_METHODS = [
   { id: 7, name: "Institute of Geophysics, University of Tehran" },
   { id: 0, name: "Shia Ithna-Ashari, Leva Institute, Qum" },
 ];
+
+const MosqueIllustration = () => (
+  <div className="relative h-40 w-full overflow-hidden rounded-lg mb-4">
+    <div className="absolute inset-0 bg-gradient-to-b from-[#e2d1c3] to-[#b4d6e2] opacity-60"></div>
+    <div className="absolute bottom-0 left-0 right-0 h-32">
+      {/* Mosque silhouette */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-24 bg-[#564f47] opacity-70 rounded-t-3xl"></div>
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -ml-16 w-8 h-32 bg-[#564f47] opacity-70 rounded-t-lg"></div>
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 ml-16 w-8 h-32 bg-[#564f47] opacity-70 rounded-t-lg"></div>
+      <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-[#d4af37] rounded-full opacity-90"></div>
+    </div>
+    {/* Stars */}
+    <div className="absolute top-4 left-10 w-1 h-1 bg-white rounded-full"></div>
+    <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-white rounded-full"></div>
+    <div className="absolute top-16 left-1/4 w-1 h-1 bg-white rounded-full"></div>
+    <div className="absolute top-6 right-1/4 w-1 h-1 bg-white rounded-full"></div>
+  </div>
+);
 
 const PrayerTimesModule: React.FC = () => {
   const [location, setLocation] = useState<GeolocationPosition | null>(null);
@@ -153,12 +171,12 @@ const PrayerTimesModule: React.FC = () => {
       };
       
       const prayerTimesData: PrayerTime[] = [
-        { name: "Fajr", time: timings.Fajr, timestamp: getTimestamp(timings.Fajr), notificationEnabled: notificationPreferences.Fajr },
-        { name: "Sunrise", time: timings.Sunrise, timestamp: getTimestamp(timings.Sunrise), notificationEnabled: false },
-        { name: "Dhuhr", time: timings.Dhuhr, timestamp: getTimestamp(timings.Dhuhr), notificationEnabled: notificationPreferences.Dhuhr },
-        { name: "Asr", time: timings.Asr, timestamp: getTimestamp(timings.Asr), notificationEnabled: notificationPreferences.Asr },
-        { name: "Maghrib", time: timings.Maghrib, timestamp: getTimestamp(timings.Maghrib), notificationEnabled: notificationPreferences.Maghrib },
-        { name: "Isha", time: timings.Isha, timestamp: getTimestamp(timings.Isha), notificationEnabled: notificationPreferences.Isha }
+        { name: "Fajr", time: timings.Fajr, timestamp: getTimestamp(timings.Fajr), notificationEnabled: notificationPreferences.Fajr, icon: <Moon className="h-4 w-4" /> },
+        { name: "Sunrise", time: timings.Sunrise, timestamp: getTimestamp(timings.Sunrise), notificationEnabled: false, icon: <Sun className="h-4 w-4" /> },
+        { name: "Dhuhr", time: timings.Dhuhr, timestamp: getTimestamp(timings.Dhuhr), notificationEnabled: notificationPreferences.Dhuhr, icon: <Sun className="h-4 w-4" /> },
+        { name: "Asr", time: timings.Asr, timestamp: getTimestamp(timings.Asr), notificationEnabled: notificationPreferences.Asr, icon: <CloudSun className="h-4 w-4" /> },
+        { name: "Maghrib", time: timings.Maghrib, timestamp: getTimestamp(timings.Maghrib), notificationEnabled: notificationPreferences.Maghrib, icon: <CloudSun className="h-4 w-4" /> },
+        { name: "Isha", time: timings.Isha, timestamp: getTimestamp(timings.Isha), notificationEnabled: notificationPreferences.Isha, icon: <Moon className="h-4 w-4" /> }
       ];
       
       if (locationName) {
@@ -378,13 +396,16 @@ const PrayerTimesModule: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Mosque illustration at the top */}
+      <MosqueIllustration />
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <div className="bg-islamic-blue rounded-xl p-3 mr-4">
-            <Clock className="h-8 w-8 text-white" />
+          <div className="bg-[#e2d1c3] rounded-xl p-3 mr-4">
+            <Clock className="h-8 w-8 text-[#564f47]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Prayer Times</h1>
+            <h1 className="text-2xl font-bold text-[#564f47]">Prayer Times</h1>
             {customLocation && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <MapPin className="h-3 w-3 mr-1" />
@@ -406,20 +427,20 @@ const PrayerTimesModule: React.FC = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="times">Times</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-[#f5f0e8]">
+          <TabsTrigger value="times" className="data-[state=active]:bg-[#e2d1c3] data-[state=active]:text-[#564f47]">Times</TabsTrigger>
+          <TabsTrigger value="calendar" className="data-[state=active]:bg-[#e2d1c3] data-[state=active]:text-[#564f47]">Calendar</TabsTrigger>
+          <TabsTrigger value="settings" className="data-[state=active]:bg-[#e2d1c3] data-[state=active]:text-[#564f47]">Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="times">
           {nextPrayer && (
-            <Card className="mb-6">
+            <Card className="mb-6 border-[#e2d1c3] bg-gradient-to-r from-[#f5f0e8] to-[#e8f0f5]">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Next Prayer</CardTitle>
+                <CardTitle className="text-lg text-[#564f47]">Next Prayer</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-islamic-green/10 text-islamic-green rounded-lg p-4">
+                <div className="bg-[#e2d1c3]/30 text-[#564f47] rounded-lg p-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <h2 className="text-2xl font-bold">{nextPrayer.name}</h2>
@@ -438,22 +459,29 @@ const PrayerTimesModule: React.FC = () => {
                 key={prayer.name}
                 className={`p-4 rounded-lg border ${
                   nextPrayer?.name === prayer.name
-                    ? "bg-islamic-light-green/20 border-islamic-green"
+                    ? "bg-[#e2d1c3]/20 border-[#b4a89a]"
                     : "bg-card"
                 }`}
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
-                    <span className="font-medium mr-2">{prayer.name}</span>
+                    <span className="bg-[#f5f0e8] p-2 rounded-full mr-2">
+                      {prayer.icon}
+                    </span>
+                    <span className="font-medium">{prayer.name}</span>
                     {prayer.name !== 'Sunrise' && (
-                      <Badge variant={prayer.notificationEnabled ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleNotification(prayer.name)}>
+                      <Badge 
+                        variant={prayer.notificationEnabled ? "default" : "outline"} 
+                        className="ml-2 cursor-pointer bg-[#b4a89a]" 
+                        onClick={() => toggleNotification(prayer.name)}
+                      >
                         <Bell className="h-3 w-3 mr-1" />
                         {prayer.notificationEnabled ? 'On' : 'Off'}
                       </Badge>
                     )}
                   </div>
-                  <span>{prayer.time}</span>
+                  <span className="font-arabic text-lg">{prayer.time}</span>
                 </div>
               </motion.div>
             ))}
@@ -461,16 +489,16 @@ const PrayerTimesModule: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="calendar">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-[#e2d1c3]">
+            <CardHeader className="bg-[#f5f0e8]">
+              <CardTitle className="flex items-center gap-2 text-[#564f47]">
                 <Calendar className="h-5 w-5" />
                 Prayer Times Calendar - {format(new Date(), 'MMMM yyyy')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-gradient-to-r from-[#f5f0e8]/50 to-[#e8f0f5]/50">
               <div className="text-sm">
-                <div className="border-b py-2 grid grid-cols-7 font-medium">
+                <div className="border-b py-2 grid grid-cols-7 font-medium text-[#564f47]">
                   <div>Date</div>
                   <div>Fajr</div>
                   <div>Sunrise</div>
@@ -483,15 +511,15 @@ const PrayerTimesModule: React.FC = () => {
                   {prayerCalendar.map((day) => (
                     <div 
                       key={day.date} 
-                      className="grid grid-cols-7 border-b py-2 hover:bg-muted/50"
+                      className="grid grid-cols-7 border-b py-2 hover:bg-[#f5f0e8]/30"
                     >
                       <div className="font-medium">{day.date}</div>
-                      <div>{day.prayers.fajr}</div>
-                      <div>{day.prayers.sunrise}</div>
-                      <div>{day.prayers.dhuhr}</div>
-                      <div>{day.prayers.asr}</div>
-                      <div>{day.prayers.maghrib}</div>
-                      <div>{day.prayers.isha}</div>
+                      <div className="font-arabic">{day.prayers.fajr}</div>
+                      <div className="font-arabic">{day.prayers.sunrise}</div>
+                      <div className="font-arabic">{day.prayers.dhuhr}</div>
+                      <div className="font-arabic">{day.prayers.asr}</div>
+                      <div className="font-arabic">{day.prayers.maghrib}</div>
+                      <div className="font-arabic">{day.prayers.isha}</div>
                     </div>
                   ))}
                 </div>
@@ -501,14 +529,14 @@ const PrayerTimesModule: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-[#e2d1c3]">
+            <CardHeader className="bg-[#f5f0e8]">
+              <CardTitle className="flex items-center gap-2 text-[#564f47]">
                 <Settings className="h-5 w-5" />
                 Prayer Settings
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 bg-gradient-to-r from-[#f5f0e8]/50 to-[#e8f0f5]/50">
               <div className="space-y-2">
                 <Label>Calculation Method</Label>
                 <Select value={calculationMethod.toString()} onValueChange={handleCalculationMethodChange}>
