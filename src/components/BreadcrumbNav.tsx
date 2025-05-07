@@ -23,7 +23,7 @@ const moduleDisplayNames: Record<string, string> = {
   certificates: "Certificates",
   tipDeveloper: "Tip Developer",
   settings: "Settings",
-  namesOfAllah: "Names of Allah",
+  namesOfAllah: "99 Names of Allah",
   contact: "Contact",
   notifications: "Notifications",
   share: "Share",

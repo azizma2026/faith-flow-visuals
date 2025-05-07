@@ -32,6 +32,18 @@ export const FEATURE_PAGES: FeatureItem[][] = [
       module: "prayerTimes"
     },
     {
+      title: "Qibla",
+      icon: Compass,
+      color: "bg-islamic-light-green",
+      module: "qibla"
+    },
+    {
+      title: "Names of Allah",
+      icon: BookMarked,
+      color: "bg-islamic-gold",
+      module: "namesOfAllah"
+    },
+    {
       title: "Contact Us",
       icon: MessagesSquare,
       color: "bg-islamic-green",
@@ -124,7 +136,7 @@ export const FEATURE_PAGES: FeatureItem[][] = [
       title: "Allah Names",
       icon: FileText,
       color: "bg-islamic-blue",
-      module: "settings"
+      module: "namesOfAllah"
     },
     {
       title: "Advertise",
