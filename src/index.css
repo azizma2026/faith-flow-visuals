@@ -1,55 +1,47 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 40 33% 98%;
+    --foreground: 30 15% 20%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 30% 96%;
+    --card-foreground: 30 15% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 30% 96%;
+    --popover-foreground: 30 15% 20%;
 
     --primary: 170 55% 26%; /* Islamic green */
     --primary-foreground: 42 77% 48%; /* Gold for primary text */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 40 30% 92%;
+    --secondary-foreground: 30 15% 25%;
 
     --muted: 37 46% 91%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 30 10% 40%;
 
     --accent: 42 77% 48%; /* Gold accent */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent-foreground: 30 15% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 20% 80%;
+    --input: 40 20% 80%;
+    --ring: 30 15% 20%;
 
     --radius: 0.75rem; /* Slightly more rounded */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 40 33% 98%;
+    --sidebar-foreground: 30 15% 30%;
+    --sidebar-primary: 30 15% 15%;
+    --sidebar-primary-foreground: 40 33% 98%;
+    --sidebar-accent: 40 30% 90%;
+    --sidebar-accent-foreground: 30 15% 15%;
+    --sidebar-border: 40 20% 80%;
+    --sidebar-ring: 170 55% 26%;
   }
 
   .dark {
@@ -145,6 +137,58 @@
     @apply text-islamic-gold font-semibold;
   }
 
+  quran-verse-container {
+    @apply bg-islamic-light-beige p-5 rounded-lg border border-islamic-warm-beige my-4 relative overflow-hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  }
+  
+  .quran-verse-container::before,
+  .quran-verse-container::after {
+    content: "";
+    position: absolute;
+    height: 10px;
+    left: 0;
+    right: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='10' viewBox='0 0 80 10'%3E%3Cpath d='M0,10 L10,0 L20,10 L30,0 L40,10 L50,0 L60,10 L70,0 L80,10 L80,0 L0,0 L0,10 Z' fill='%23d5c7a9' fill-opacity='0.4'/%3E%3C/svg%3E");
+  }
+  
+  .quran-verse-container::before {
+    top: 0;
+  }
+  
+  .quran-verse-container::after {
+    bottom: 0;
+    transform: rotate(180deg);
+  }
+
+  .quran-arabic-text {
+    color: #564F47;
+    text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1);
+  }
+  
+  .surah-header {
+    @apply bg-islamic-medium-beige text-islamic-text-brown text-center py-4 px-6 mb-6 rounded-lg border border-islamic-warm-beige relative overflow-hidden;
+  }
+  
+  .surah-header::before,
+  .surah-header::after {
+    content: "";
+    position: absolute;
+    height: 15px;
+    left: 0;
+    right: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='15' viewBox='0 0 100 15'%3E%3Cpath d='M0,0 C10,10 20,15 30,15 C40,15 50,10 60,5 C70,0 80,0 90,5 C100,10 100,15 100,15 L100,0 L0,0 L0,0 Z' fill='%238A7356' fill-opacity='0.2'/%3E%3C/svg%3E");
+  }
+  
+  .surah-header::before {
+    top: 0;
+  }
+  
+  .surah-header::after {
+    bottom: 0;
+    transform: rotate(180deg);
+  }
+
   @keyframes gentle-pulse {
     0% { opacity: 0.8; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.03); }
@@ -187,6 +231,8 @@
   .font-arabic {
     font-family: 'Scheherazade New', 'Amiri', serif;
     direction: rtl;
+    letter-spacing: 0.02em;
+    line-height: 1.8;
   }
 }
 
@@ -243,4 +289,22 @@
 }
 
 /* Adding Arabic font for prayer times */
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
+
+/* Quran styling */
+.surah-bismillah {
+  @apply text-center text-islamic-text-brown italic mb-8 text-lg;
+}
+
+.ayah-number {
+  @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-islamic-warm-beige/40 text-islamic-text-brown mx-2 text-sm;
+}
+
+.quran-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #F8F4EA;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}

@@ -19,6 +19,11 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
       toast({
         title: "Premium Feature",
         description: "This feature is only available for premium users.",
+        style: {
+          background: "#F8F4EA", 
+          border: "1px solid #D5C7A9",
+          color: "#564F47"
+        },
       });
       return;
     }
@@ -53,9 +58,9 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
         title: "Module coming soon",
         description: "This feature is still under development.",
         style: {
-          background: "#f5f0e8", 
-          border: "1px solid #e2d1c3",
-          color: "#564f47"
+          background: "#F8F4EA", 
+          border: "1px solid #D5C7A9",
+          color: "#564F47"
         },
       });
     }
@@ -68,10 +73,10 @@ const FeatureGridItem: React.FC<FeatureGridItemProps> = ({ feature }) => {
         icon={feature.icon}
         color={feature.color}
         onClick={() => handleIconClick(feature.module)}
-        className="transition-transform duration-300 group-hover:scale-105"
+        className="transition-transform duration-300 group-hover:scale-105 bg-islamic-light-beige border-islamic-warm-beige"
       />
       {feature.isPremium && (
-        <div className="absolute top-0 right-0 p-1 bg-[#d4af37] rounded-full -mt-2 -mr-2 shadow-sm">
+        <div className="absolute top-0 right-0 p-1 bg-islamic-gold rounded-full -mt-2 -mr-2 shadow-sm">
           <Lock className="w-3 h-3 text-white" />
         </div>
       )}
