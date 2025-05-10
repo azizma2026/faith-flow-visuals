@@ -1,352 +1,280 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Headphones, RotateCcw, Save, Plus, Minus, Volume2, VolumeX } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Refresh, Plus, Save, Volume2 } from "lucide-react";
 
-interface TasbeehPreset {
-  id: string;
-  name: string;
-  target: number;
-  description: string;
-}
-
-const presets: TasbeehPreset[] = [
+// Pre-defined Tasbeeh phrases
+const TASBEEH_PHRASES = [
   {
-    id: "subhanallah",
-    name: "Subhanallah",
-    target: 33,
-    description: "Glory be to Allah"
+    arabic: "سُبْحَانَ اللهِ",
+    transliteration: "Subhan Allah",
+    translation: "Glory be to Allah",
+    recommended: 33,
   },
   {
-    id: "alhamdulillah",
-    name: "Alhamdulillah",
-    target: 33,
-    description: "Praise be to Allah"
+    arabic: "الْحَمْدُ للهِ",
+    transliteration: "Alhamdulillah",
+    translation: "Praise be to Allah",
+    recommended: 33,
   },
   {
-    id: "allahuakbar",
-    name: "Allahu Akbar",
-    target: 34,
-    description: "Allah is the Greatest"
+    arabic: "اللهُ أَكْبَر",
+    transliteration: "Allahu Akbar",
+    translation: "Allah is the Greatest",
+    recommended: 34,
   },
   {
-    id: "dhikr",
-    name: "La ilaha illallah",
-    target: 100,
-    description: "There is no god but Allah"
+    arabic: "لَا إِلَٰهَ إِلَّا اللهُ",
+    transliteration: "La ilaha illallah",
+    translation: "There is no god but Allah",
+    recommended: 100,
   },
   {
-    id: "istighfar",
-    name: "Astaghfirullah",
-    target: 100,
-    description: "I seek forgiveness from Allah"
-  }
+    arabic: "أَسْتَغْفِرُ اللهَ",
+    transliteration: "Astaghfirullah",
+    translation: "I seek forgiveness from Allah",
+    recommended: 100,
+  },
+  {
+    arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+    transliteration: "La hawla wala quwwata illa billah",
+    translation: "There is no might nor power except with Allah",
+    recommended: 100,
+  },
 ];
 
+// Sound effect for counter
+const playCountSound = () => {
+  const audio = new Audio("/tasbeeh-click.mp3");
+  audio.volume = 0.5;
+  audio.play().catch(e => console.log("Audio play failed:", e));
+};
+
+// Sound effect for completion
+const playCompletionSound = () => {
+  const audio = new Audio("/tasbeeh-complete.mp3");
+  audio.volume = 0.7;
+  audio.play().catch(e => console.log("Audio play failed:", e));
+};
+
 const TasbeehModule: React.FC = () => {
-  const [count, setCount] = useState<number>(0);
-  const [target, setTarget] = useState<number>(33);
-  const [selectedPreset, setSelectedPreset] = useState<string>("subhanallah");
-  const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(true);
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [isCompleted, setIsCompleted] = useState<boolean>(false);
-  const [savedSessions, setSavedSessions] = useState<Array<{ date: string; preset: string; count: number }>>([]);
+  const [count, setCount] = useState(0);
+  const [target, setTarget] = useState(33);
+  const [savedCounts, setSavedCounts] = useState<{ phrase: string; count: number }[]>([]);
+  const [selectedTasbeeh, setSelectedTasbeeh] = useState(0);
+  const [vibration, setVibration] = useState(true);
+  const [sound, setSound] = useState(true);
   const { toast } = useToast();
 
-  // Load saved settings from localStorage
+  // Effect to check if target is reached
   useEffect(() => {
-    const savedSettings = localStorage.getItem('tasbeehSettings');
-    if (savedSettings) {
-      const { vibration, sound, lastPreset } = JSON.parse(savedSettings);
-      setVibrationEnabled(vibration);
-      setSoundEnabled(sound);
-      if (lastPreset) {
-        setSelectedPreset(lastPreset);
-        const preset = presets.find(p => p.id === lastPreset);
-        if (preset) setTarget(preset.target);
-      }
-    }
-
-    const saved = localStorage.getItem('tasbeehSessions');
-    if (saved) {
-      setSavedSessions(JSON.parse(saved));
-    }
-  }, []);
-
-  // Save settings to localStorage
-  useEffect(() => {
-    localStorage.setItem('tasbeehSettings', JSON.stringify({
-      vibration: vibrationEnabled,
-      sound: soundEnabled,
-      lastPreset: selectedPreset
-    }));
-  }, [vibrationEnabled, soundEnabled, selectedPreset]);
-
-  // Handle preset change
-  const handlePresetChange = (preset: TasbeehPreset) => {
-    setSelectedPreset(preset.id);
-    setTarget(preset.target);
-    setCount(0);
-    setIsCompleted(false);
-  };
-
-  // Increment count
-  const increment = () => {
-    if (isCompleted) return;
-    
-    const newCount = count + 1;
-    setCount(newCount);
-    
-    // Provide feedback
-    if (vibrationEnabled && 'vibrate' in navigator) {
-      navigator.vibrate(20);
-    }
-    
-    if (soundEnabled) {
-      const audio = new Audio('/click.mp3');
-      audio.play().catch(error => {
-        // Silently fail if audio can't be played
-        console.error("Audio error:", error);
-      });
-    }
-    
-    // Check if target is reached
-    if (newCount >= target) {
-      setIsCompleted(true);
+    if (count === target) {
+      if (sound) playCompletionSound();
       toast({
-        title: "Tasbeeh Completed!",
-        description: `You have completed ${target} counts of ${presets.find(p => p.id === selectedPreset)?.name}.`,
+        title: "Tasbeeh Complete",
+        description: `You have completed ${target} counts of ${TASBEEH_PHRASES[selectedTasbeeh].transliteration}`,
+        style: {
+          background: "#F8F4EA", 
+          border: "1px solid #D5C7A9",
+          color: "#564F47"
+        },
       });
-      
-      // Optional: Play completion sound
-      if (soundEnabled) {
-        const completionAudio = new Audio('/completion.mp3');
-        completionAudio.play().catch(error => {
-          console.error("Audio error:", error);
-        });
-      }
     }
+  }, [count, target, selectedTasbeeh, sound, toast]);
+
+  const handleIncrement = () => {
+    setCount(prevCount => {
+      const newCount = prevCount + 1;
+      if (sound && newCount <= target) playCountSound();
+      if (vibration && "vibrate" in navigator) {
+        navigator.vibrate(20);
+      }
+      return newCount;
+    });
   };
 
-  // Decrement count
-  const decrement = () => {
-    if (count > 0) {
-      setCount(count - 1);
-      setIsCompleted(false);
-      
-      if (vibrationEnabled && 'vibrate' in navigator) {
-        navigator.vibrate(10);
-      }
-    }
-  };
-
-  // Reset count
-  const reset = () => {
+  const handleReset = () => {
     setCount(0);
-    setIsCompleted(false);
-    
+  };
+
+  const handleSave = () => {
+    const newSavedCount = {
+      phrase: TASBEEH_PHRASES[selectedTasbeeh].transliteration,
+      count,
+    };
+    setSavedCounts(prev => [...prev, newSavedCount]);
     toast({
-      title: "Counter Reset",
-      description: "Your tasbeeh counter has been reset.",
+      title: "Saved",
+      description: `Saved ${count} counts of ${TASBEEH_PHRASES[selectedTasbeeh].transliteration}`,
+      style: {
+        background: "#F8F4EA", 
+        border: "1px solid #D5C7A9",
+        color: "#564F47"
+      },
     });
   };
 
-  // Save current session
-  const saveSession = () => {
-    const newSession = {
-      date: new Date().toLocaleString(),
-      preset: presets.find(p => p.id === selectedPreset)?.name || "",
-      count: count
-    };
-    
-    const updatedSessions = [newSession, ...savedSessions].slice(0, 10); // Keep only last 10 sessions
-    setSavedSessions(updatedSessions);
-    localStorage.setItem('tasbeehSessions', JSON.stringify(updatedSessions));
-    
-    toast({
-      title: "Session Saved",
-      description: "Your tasbeeh session has been saved.",
-    });
+  const handleTasbeehChange = (value: string) => {
+    const index = parseInt(value);
+    setSelectedTasbeeh(index);
+    setTarget(TASBEEH_PHRASES[index].recommended);
+    setCount(0);
   };
 
   return (
-    <motion.div 
-      className="p-6 max-w-lg mx-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex items-center mb-6">
-        <div className="bg-islamic-light-green rounded-xl p-3 mr-4">
-          <Headphones className="h-8 w-8 text-white" />
-        </div>
-        <h1 className="text-2xl font-bold">Tasbeeh</h1>
-      </div>
-      
-      <Tabs defaultValue="counter" className="w-full">
-        <TabsList className="grid grid-cols-2 mb-6">
-          <TabsTrigger value="counter">Counter</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="counter">
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle>Select Dhikr</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-2">
-                {presets.map((preset) => (
-                  <Button
-                    key={preset.id}
-                    variant={selectedPreset === preset.id ? "default" : "outline"}
-                    className={`justify-start ${selectedPreset === preset.id ? "bg-islamic-green hover:bg-islamic-green/90" : ""}`}
-                    onClick={() => handlePresetChange(preset)}
-                  >
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">{preset.name}</span>
-                      <span className="text-xs opacity-70">{preset.description}</span>
-                    </div>
-                    <Badge variant="outline" className="ml-auto">
-                      {preset.target}
-                    </Badge>
-                  </Button>
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-islamic-light-beige bg-islamic-pattern">
+      <div className="max-w-md w-full space-y-6">
+        <Card className="p-6 rounded-xl border-islamic-warm-beige bg-white/90 shadow-md overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-islamic-green to-islamic-gold"></div>
+          
+          <h1 className="text-2xl font-semibold text-islamic-text-brown text-center mb-6">
+            Digital Tasbeeh
+          </h1>
+          
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-islamic-text-brown mb-1">
+              Select Dhikr
+            </label>
+            <Select 
+              onValueChange={handleTasbeehChange} 
+              defaultValue="0"
+            >
+              <SelectTrigger className="w-full border-islamic-warm-beige">
+                <SelectValue placeholder="Select a tasbeeh" />
+              </SelectTrigger>
+              <SelectContent>
+                {TASBEEH_PHRASES.map((phrase, index) => (
+                  <SelectItem key={index} value={index.toString()}>
+                    {phrase.transliteration}
+                  </SelectItem>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="bg-islamic-light-green/20 rounded-lg p-6 mb-6 text-center">
-            <div className="text-5xl font-bold mb-2 text-islamic-green">{count}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Target: {target} | Progress: {Math.floor((count / target) * 100)}%
-            </div>
-            
-            {isCompleted && (
-              <Badge className="mt-2 bg-islamic-gold">Completed!</Badge>
-            )}
-            
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-4">
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="text-center mb-8 py-4">
+            <h2 className="text-4xl font-arabic mb-2 text-islamic-text-brown">
+              {TASBEEH_PHRASES[selectedTasbeeh].arabic}
+            </h2>
+            <p className="text-lg text-islamic-text-light-brown">
+              {TASBEEH_PHRASES[selectedTasbeeh].transliteration}
+            </p>
+            <p className="text-sm text-islamic-text-light-brown">
+              {TASBEEH_PHRASES[selectedTasbeeh].translation}
+            </p>
+          </div>
+          
+          <div className="relative mb-6">
+            <div className="h-4 w-full bg-islamic-medium-beige rounded-full overflow-hidden">
               <div 
-                className="bg-islamic-green h-2.5 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, Math.floor((count / target) * 100))}%` }}
+                className="h-full bg-islamic-gold transition-all duration-300 ease-out"
+                style={{ width: `${Math.min(100, (count / target) * 100)}%` }}
               ></div>
             </div>
+            <div className="flex justify-between mt-1 text-xs text-islamic-text-light-brown">
+              <span>0</span>
+              <span>{target}</span>
+            </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={decrement}
-              className="flex-1"
-            >
-              <Minus className="h-6 w-6" />
-            </Button>
-            
-            <Button 
-              variant="default" 
-              size="lg"
-              onClick={increment}
-              className="flex-1 bg-islamic-green hover:bg-islamic-green/90 text-white"
-            >
-              <Plus className="h-6 w-6" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={reset}
-              className="flex-1"
-            >
-              <RotateCcw className="h-6 w-6" />
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline"
-              onClick={() => setVibrationEnabled(!vibrationEnabled)}
-              className={`${vibrationEnabled ? "border-islamic-green text-islamic-green" : ""}`}
-            >
-              {vibrationEnabled ? "Vibration ON" : "Vibration OFF"}
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`${soundEnabled ? "border-islamic-green text-islamic-green" : ""}`}
-            >
-              {soundEnabled ? <Volume2 className="mr-2 h-4 w-4" /> : <VolumeX className="mr-2 h-4 w-4" />}
-              {soundEnabled ? "Sound ON" : "Sound OFF"}
-            </Button>
-          </div>
-          
-          <Button 
-            variant="default"
-            className="w-full mt-6 bg-islamic-gold hover:bg-islamic-gold/90 text-white"
-            onClick={saveSession}
-            disabled={count === 0}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Save Session
-          </Button>
-        </TabsContent>
-        
-        <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Sessions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {savedSessions.length > 0 ? (
-                <div className="space-y-4">
-                  {savedSessions.map((session, index) => (
-                    <div 
-                      key={index} 
-                      className="p-4 border rounded-lg flex justify-between items-center"
-                    >
-                      <div>
-                        <div className="font-medium">{session.preset}</div>
-                        <div className="text-sm text-gray-500">{session.date}</div>
-                      </div>
-                      <Badge>{session.count} counts</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No saved sessions yet.</p>
-                  <p className="text-sm mt-2">Complete and save a tasbeeh session to see it here.</p>
-                </div>
-              )}
-            </CardContent>
-            <CardFooter>
+          <div className="flex items-center justify-center mb-8">
+            <div className="flex items-center bg-islamic-light-beige rounded-full p-2 w-40 justify-between">
               <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  setSavedSessions([]);
-                  localStorage.removeItem('tasbeehSessions');
-                  toast({
-                    title: "History Cleared",
-                    description: "Your tasbeeh history has been cleared.",
-                  });
-                }}
-                disabled={savedSessions.length === 0}
+                variant="outline"
+                size="sm"
+                className="rounded-full h-10 w-10 flex items-center justify-center border-islamic-warm-beige hover:bg-islamic-warm-beige"
+                onClick={handleReset}
               >
-                Clear History
+                <Refresh className="h-5 w-5 text-islamic-text-brown" />
               </Button>
-            </CardFooter>
+              
+              <span className="text-2xl font-medium text-islamic-text-brown">
+                {count}
+              </span>
+              
+              <Button 
+                variant="outline"
+                size="sm"
+                className="rounded-full h-10 w-10 flex items-center justify-center border-islamic-warm-beige hover:bg-islamic-warm-beige"
+                onClick={handleSave}
+              >
+                <Save className="h-5 w-5 text-islamic-text-brown" />
+              </Button>
+            </div>
+          </div>
+          
+          <motion.div 
+            className="flex justify-center"
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.button
+              className="w-24 h-24 rounded-full bg-islamic-gold flex items-center justify-center shadow-lg hover:bg-islamic-gold/90 transition-colors border-4 border-white"
+              onClick={handleIncrement}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Plus className="h-12 w-12 text-white" />
+            </motion.button>
+          </motion.div>
+          
+          <div className="flex justify-between items-center mt-8">
+            <div className="flex items-center">
+              <input 
+                type="checkbox" 
+                id="vibration" 
+                checked={vibration} 
+                onChange={() => setVibration(!vibration)}
+                className="rounded text-islamic-gold"
+              />
+              <label htmlFor="vibration" className="ml-2 text-sm text-islamic-text-light-brown">
+                Vibration
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <input 
+                type="checkbox" 
+                id="sound" 
+                checked={sound} 
+                onChange={() => setSound(!sound)}
+                className="rounded text-islamic-gold"
+              />
+              <label htmlFor="sound" className="ml-2 text-sm text-islamic-text-light-brown flex items-center">
+                Sound
+                <Volume2 className="h-4 w-4 ml-1 text-islamic-text-light-brown" />
+              </label>
+            </div>
+          </div>
+        </Card>
+        
+        {savedCounts.length > 0 && (
+          <Card className="p-6 rounded-xl border-islamic-warm-beige bg-white/90 shadow-md">
+            <h2 className="text-xl font-semibold text-islamic-text-brown mb-4">Saved Counts</h2>
+            <div className="space-y-2">
+              {savedCounts.map((saved, index) => (
+                <div 
+                  key={index} 
+                  className="flex justify-between p-2 bg-islamic-light-beige rounded-lg border border-islamic-warm-beige"
+                >
+                  <span className="text-islamic-text-brown">{saved.phrase}</span>
+                  <span className="font-medium text-islamic-text-brown">{saved.count}</span>
+                </div>
+              ))}
+            </div>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </motion.div>
+        )}
+      </div>
+    </div>
   );
 };
 

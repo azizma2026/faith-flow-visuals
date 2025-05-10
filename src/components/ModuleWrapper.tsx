@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
 import { motion } from 'framer-motion';
@@ -20,13 +21,15 @@ const IslamicQuizModule = lazy(() => import('@/modules/IslamicQuizModule'));
 const SalahGuideModule = lazy(() => import('@/modules/SalahGuideModule'));
 const CertificatesModule = lazy(() => import('@/modules/CertificatesModule'));
 const TipDeveloperModule = lazy(() => import('@/modules/TipDeveloperModule'));
-const NamesOfAllahModule = lazy(() => import('@/modules/NamesOfAllahModule')); // Added the new module import
+const NamesOfAllahModule = lazy(() => import('@/modules/NamesOfAllahModule'));
+const IslamicCalendarModule = lazy(() => import('@/modules/IslamicCalendarModule'));
+const HadithSearchModule = lazy(() => import('@/modules/HadithSearchModule'));
 
 // Default component for modules that aren't fully implemented yet
 const ComingSoonModule = () => (
-  <div className="flex flex-col items-center justify-center h-screen p-6">
+  <div className="flex flex-col items-center justify-center h-screen p-6 bg-islamic-light-beige bg-islamic-pattern">
     <h1 className="text-2xl font-bold text-islamic-gold mb-4">Coming Soon</h1>
-    <p className="text-center text-gray-600 dark:text-gray-300">
+    <p className="text-center text-islamic-text-brown">
       This feature is under development and will be available soon.
     </p>
   </div>
@@ -37,7 +40,7 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   quran: QuranModule,
   prayerTimes: PrayerTimesModule,
   qibla: QiblaModule,
-  hadith: HadithModule,
+  hadith: HadithSearchModule,
   tasbeeh: TasbeehModule,
   duas: DuasModule,
   channels: ChannelsModule,
@@ -56,7 +59,8 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   rate: ComingSoonModule,
   hajjGuide: ComingSoonModule,
   knowledgeTests: ComingSoonModule,
-  namesOfAllah: NamesOfAllahModule // Added the missing module
+  namesOfAllah: NamesOfAllahModule,
+  islamicCalendar: IslamicCalendarModule
 };
 
 export const ModuleWrapper: React.FC = () => {
@@ -81,7 +85,7 @@ export const ModuleWrapper: React.FC = () => {
       </div>
       
       <Suspense fallback={
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-screen bg-islamic-light-beige bg-islamic-pattern">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green"></div>
         </div>
       }>

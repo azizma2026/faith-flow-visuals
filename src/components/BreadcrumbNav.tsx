@@ -30,7 +30,8 @@ const moduleDisplayNames: Record<string, string> = {
   rate: "Rate App",
   hajjGuide: "Hajj Guide",
   knowledgeTests: "Knowledge Tests",
-  islamicChannels: "Islamic Channels"
+  islamicChannels: "Islamic Channels",
+  islamicCalendar: "Islamic Calendar"
 };
 
 const BreadcrumbNav: React.FC = () => {

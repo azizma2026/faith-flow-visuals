@@ -25,7 +25,8 @@ export type ModuleType =
   | 'hajjGuide'
   | 'knowledgeTests'
   | 'settings'
-  | 'namesOfAllah';
+  | 'namesOfAllah'
+  | 'islamicCalendar';
 
 interface NavigationState {
   activeModule: ModuleType;

@@ -31,19 +31,19 @@ const QuranWordTranslation: React.FC<WordTranslationProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="quran-verse-container">
+      <div className="quran-verse-container py-4 my-2 px-2 border-b border-islamic-warm-beige">
         <div className={`text-right ${className} leading-loose`} dir="rtl">
           {words.map((word, index) => (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <span className="inline-block mx-1 cursor-help hover:text-[#8a7356] transition-colors font-arabic text-2xl quran-arabic-text">
+                <span className="inline-block mx-1 cursor-help hover:text-islamic-gold transition-colors font-arabic text-2xl quran-arabic-text">
                   {word.arabic}
                 </span>
               </TooltipTrigger>
-              <TooltipContent className="bg-[#f8f4ea] border-[#d5c7a9] p-3 max-w-xs rounded-md shadow-md">
+              <TooltipContent className="bg-islamic-light-beige border-islamic-warm-beige p-3 max-w-xs rounded-md shadow-md">
                 <div className="text-center">
-                  <p className="font-medium text-[#564f47]">{word.transliteration}</p>
-                  <p className="text-sm text-[#6b6256]">{word.translation}</p>
+                  <p className="font-medium text-islamic-text-brown">{word.transliteration}</p>
+                  <p className="text-sm text-islamic-text-light-brown">{word.translation}</p>
                 </div>
               </TooltipContent>
             </Tooltip>
