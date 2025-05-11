@@ -147,14 +147,14 @@ const GregorianCalendarView: React.FC<CalendarViewProps> = ({
         onSelect={(date) => date && setSelectedDate(date)}
         className="rounded-md border"
         components={{
-          Day: ({ day, ...props }) => {
+          Day: ({ date, ...props }) => {
             const isSelected = 
-              day.date.getDate() === selectedDate.getDate() &&
-              day.date.getMonth() === selectedDate.getMonth() &&
-              day.date.getFullYear() === selectedDate.getFullYear();
+              date.getDate() === selectedDate.getDate() &&
+              date.getMonth() === selectedDate.getMonth() &&
+              date.getFullYear() === selectedDate.getFullYear();
               
-            const hasEvent = dateHasEvent(day.date);
-            const event = hasEvent ? getEventForDate(day.date) : null;
+            const hasEvent = dateHasEvent(date);
+            const event = hasEvent ? getEventForDate(date) : null;
             
             return (
               <div
@@ -166,7 +166,7 @@ const GregorianCalendarView: React.FC<CalendarViewProps> = ({
                   hasEvent && !isSelected && "bg-islamic-gold/20 font-semibold"
                 )}
               >
-                {format(day.date, "d")}
+                {format(date, "d")}
                 {hasEvent && (
                   <div 
                     className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full ${

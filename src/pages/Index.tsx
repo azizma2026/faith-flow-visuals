@@ -17,7 +17,7 @@ import { getGregorianDate, getHijriDate, getCurrentTime } from "@/utils/dateUtil
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigationStore } from "@/stores/navigationStore";
+import { useNavigationStore, ModuleType } from "@/stores/navigationStore";
 import { 
   Book, 
   Clock, 
@@ -34,28 +34,28 @@ import {
 // Featured app modules for quick access
 const quickAccessModules = [
   { 
-    id: "quran", 
+    id: "quran" as ModuleType, 
     name: "Quran", 
     icon: BookOpen, 
     color: "bg-islamic-green",
     description: "Read & listen to Quran"
   },
   { 
-    id: "prayerTimes", 
+    id: "prayerTimes" as ModuleType, 
     name: "Prayer Times", 
     icon: Clock, 
     color: "bg-islamic-gold",
     description: "Auto-location prayer times"
   },
   { 
-    id: "qibla", 
+    id: "qibla" as ModuleType, 
     name: "Qibla", 
     icon: Compass, 
     color: "bg-islamic-dark-navy",
     description: "Find Qibla direction"
   },
   { 
-    id: "tasbeeh", 
+    id: "tasbeeh" as ModuleType, 
     name: "Tasbeeh", 
     icon: Heart, 
     color: "bg-islamic-text-brown",
@@ -68,28 +68,28 @@ const appFeatures = [
   {
     category: "Essential Worship",
     modules: [
-      { id: "quran", name: "Quran", icon: Book },
-      { id: "prayerTimes", name: "Prayer Times", icon: Clock },
-      { id: "qibla", name: "Qibla Finder", icon: Compass },
-      { id: "tasbeeh", name: "Tasbeeh", icon: Heart },
-      { id: "duas", name: "Duas & Azkar", icon: FileText },
+      { id: "quran" as ModuleType, name: "Quran", icon: Book },
+      { id: "prayerTimes" as ModuleType, name: "Prayer Times", icon: Clock },
+      { id: "qibla" as ModuleType, name: "Qibla Finder", icon: Compass },
+      { id: "tasbeeh" as ModuleType, name: "Tasbeeh", icon: Heart },
+      { id: "duas" as ModuleType, name: "Duas & Azkar", icon: FileText },
     ]
   },
   {
     category: "Knowledge & Community",
     modules: [
-      { id: "hadith", name: "Hadith Collection", icon: BookOpen },
-      { id: "islamicCalendar", name: "Islamic Calendar", icon: Calendar },
-      { id: "namesOfAllah", name: "Names of Allah", icon: Star },
-      { id: "channels", name: "Islamic Channels", icon: Calendar },
+      { id: "hadith" as ModuleType, name: "Hadith Collection", icon: BookOpen },
+      { id: "islamicCalendar" as ModuleType, name: "Islamic Calendar", icon: Calendar },
+      { id: "namesOfAllah" as ModuleType, name: "Names of Allah", icon: Star },
+      { id: "channels" as ModuleType, name: "Islamic Channels", icon: Calendar },
     ]
   },
   {
     category: "Special Features",
     modules: [
-      { id: "islamicQuiz", name: "Knowledge Quiz", icon: Book },
-      { id: "salahGuide", name: "Salah Guide", icon: FileText },
-      { id: "dailyVerse", name: "Daily Verse", icon: BookOpen },
+      { id: "islamicQuiz" as ModuleType, name: "Knowledge Quiz", icon: Book },
+      { id: "salahGuide" as ModuleType, name: "Salah Guide", icon: FileText },
+      { id: "dailyVerse" as ModuleType, name: "Daily Verse", icon: BookOpen },
     ]
   },
 ];
@@ -122,7 +122,7 @@ const Index = () => {
     }
   };
   
-  const handleModuleSelect = (moduleId: string) => {
+  const handleModuleSelect = (moduleId: ModuleType) => {
     setActiveModule(moduleId);
   };
 
