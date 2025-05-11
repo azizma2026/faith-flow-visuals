@@ -1,458 +1,457 @@
 
-import React, { useState } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Info } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { format, addMonths, subMonths, isToday } from "date-fns";
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Star, Moon, Sun } from "lucide-react";
+import { format } from "date-fns";
 
-// Define a type for Islamic events
-type EventType = "major" | "medium" | "minor";
-
-interface IslamicEvent {
-  date: string; // Format: "YYYY-MM-DD"
-  name: string;
-  description: string;
-  type: EventType;
-}
-
-// Sample Islamic events for 2024
-const islamicEvents: IslamicEvent[] = [
-  {
-    date: "2024-03-10",
-    name: "Start of Ramadan",
-    description: "The holy month of fasting begins at Fajr.",
-    type: "major"
-  },
-  {
-    date: "2024-04-09",
-    name: "Laylat al-Qadr (Night of Power)",
-    description: "The night when the Quran was first revealed to Prophet Muhammad (PBUH).",
-    type: "major"
-  },
-  {
-    date: "2024-04-10",
-    name: "Eid al-Fitr",
-    description: "Festival of breaking the fast, marking the end of Ramadan.",
-    type: "major"
-  },
-  {
-    date: "2024-06-16",
-    name: "Eid al-Adha",
-    description: "Festival of sacrifice, commemorating Prophet Ibrahim's willingness to sacrifice his son.",
-    type: "major"
-  },
-  {
-    date: "2024-07-07",
-    name: "Islamic New Year",
-    description: "The first day of Muharram, marking the beginning of the Islamic year 1446 AH.",
-    type: "medium"
-  },
-  {
-    date: "2024-07-16",
-    name: "Day of Ashura",
-    description: "The tenth day of Muharram, commemorating various significant events in Islamic history.",
-    type: "medium"
-  },
-  {
-    date: "2024-09-15",
-    name: "Mawlid al-Nabi",
-    description: "Birthday of Prophet Muhammad (PBUH).",
-    type: "medium"
-  },
-  {
-    date: "2024-02-24",
-    name: "Laylat al-Mi'raj",
-    description: "The night journey of Prophet Muhammad (PBUH) to Jerusalem and then to heaven.",
-    type: "medium"
-  },
-  {
-    date: "2024-02-15",
-    name: "Laylat al-Bara'ah",
-    description: "Night of Forgiveness, observed on the 15th of Sha'ban.",
-    type: "medium"
-  },
-  {
-    date: "2024-03-22",
-    name: "First Fast of Ramadan",
-    description: "The first day of fasting in the month of Ramadan.",
-    type: "medium"
-  },
-  {
-    date: "2024-04-08",
-    name: "Last Day of Ramadan",
-    description: "The final day of fasting before Eid al-Fitr.",
-    type: "medium"
-  },
-  {
-    date: "2024-06-06",
-    name: "Day of Arafah",
-    description: "The day when pilgrims gather on Mount Arafah during Hajj.",
-    type: "medium"
-  },
-  {
-    date: "2024-05-17",
-    name: "Friday Prayer",
-    description: "Special day for Muslims to gather for congregational prayer.",
-    type: "minor"
-  },
-  {
-    date: "2024-05-24",
-    name: "Friday Prayer",
-    description: "Special day for Muslims to gather for congregational prayer.",
-    type: "minor"
-  },
-  {
-    date: "2024-05-31",
-    name: "Friday Prayer",
-    description: "Special day for Muslims to gather for congregational prayer.",
-    type: "minor"
-  }
-];
-
-// Hijri month names
-const hijriMonths = [
-  "Muharram",
-  "Safar",
-  "Rabi' al-Awwal",
-  "Rabi' al-Thani",
-  "Jumada al-Awwal",
-  "Jumada al-Thani",
-  "Rajab",
-  "Sha'ban",
-  "Ramadan",
-  "Shawwal",
-  "Dhu al-Qi'dah",
-  "Dhu al-Hijjah"
-];
-
-// A simple function to convert Gregorian date to approximate Hijri date
-// Note: This is a simplified calculation and may be off by 1-2 days
-const getApproximateHijriDate = (gregorianDate: Date): { day: number; month: number; year: number } => {
-  // This is a very simplified conversion - in a real app, use a proper Hijri calendar library
-  const gregorianYear = gregorianDate.getFullYear();
-  const gregorianMonth = gregorianDate.getMonth();
-  const gregorianDay = gregorianDate.getDate();
+// Helper function to convert Gregorian to Hijri date
+const convertToHijri = (date: Date) => {
+  // This is a simplified conversion - in a real app, use a proper hijri date library
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
   
-  // Approximate conversion (this is not accurate but gives a general idea)
-  // Real calculation involves lunar cycles and more complex math
-  const hijriYear = Math.floor(gregorianYear - 622 + (gregorianMonth > 1 ? 0 : -1));
-  const hijriMonth = (gregorianMonth + 1) % 12;
-  const hijriDay = ((gregorianDay + 10) % 30) || 30;
+  // This is just a placeholder algorithm - not accurate
+  const estimatedHijriYear = Math.floor((year - 622) * (33/32));
+  const estimatedHijriMonth = (month + 1) % 12; // Just an example
+  const estimatedHijriDay = ((day + 15) % 30) + 1; // Just an example
+  
+  const hijriMonths = [
+    "Muharram", "Safar", "Rabi' al-Awwal", "Rabi' al-Thani", 
+    "Jumada al-Awwal", "Jumada al-Thani", "Rajab", "Sha'ban", 
+    "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
+  ];
   
   return {
-    day: hijriDay,
-    month: hijriMonth,
-    year: hijriYear
+    day: estimatedHijriDay,
+    month: estimatedHijriMonth,
+    monthName: hijriMonths[estimatedHijriMonth],
+    year: estimatedHijriYear
   };
 };
 
-// Function to check if a date has an Islamic event
-const getEventsForDate = (dateString: string): IslamicEvent[] => {
-  return islamicEvents.filter(event => event.date === dateString);
-};
-
-// Function to get color based on event type
-const getEventColor = (eventType: EventType): string => {
-  switch(eventType) {
-    case "major":
-      return "bg-islamic-gold text-white";
-    case "medium":
-      return "bg-islamic-green text-white";
-    case "minor":
-      return "bg-islamic-light-blue text-white";
-    default:
-      return "bg-islamic-light-green text-white";
+// Islamic events data
+const islamicEvents = [
+  {
+    name: "Ramadan Start",
+    gregorianDate: new Date(2024, 2, 11), // March 11, 2024
+    hijriDate: "1 Ramadan 1445",
+    description: "The holy month of fasting begins",
+    importance: "major"
+  },
+  {
+    name: "Laylat al-Qadr",
+    gregorianDate: new Date(2024, 2, 27), // March 27, 2024
+    hijriDate: "27 Ramadan 1445",
+    description: "The Night of Power",
+    importance: "major"
+  },
+  {
+    name: "Eid al-Fitr",
+    gregorianDate: new Date(2024, 3, 10), // April 10, 2024
+    hijriDate: "1 Shawwal 1445",
+    description: "Festival of Breaking the Fast",
+    importance: "major"
+  },
+  {
+    name: "Day of Arafah",
+    gregorianDate: new Date(2024, 5, 15), // June 15, 2024
+    hijriDate: "9 Dhu al-Hijjah 1445",
+    description: "The day of standing on Mount Arafah during Hajj",
+    importance: "major"
+  },
+  {
+    name: "Eid al-Adha",
+    gregorianDate: new Date(2024, 5, 16), // June 16, 2024
+    hijriDate: "10 Dhu al-Hijjah 1445",
+    description: "Festival of Sacrifice",
+    importance: "major"
+  },
+  {
+    name: "Islamic New Year",
+    gregorianDate: new Date(2024, 6, 7), // July 7, 2024
+    hijriDate: "1 Muharram 1446",
+    description: "Beginning of Islamic Year 1446",
+    importance: "major"
+  },
+  {
+    name: "Ashura",
+    gregorianDate: new Date(2024, 6, 16), // July 16, 2024
+    hijriDate: "10 Muharram 1446",
+    description: "Day of fasting, commemorates various events",
+    importance: "major"
+  },
+  {
+    name: "Mawlid al-Nabi",
+    gregorianDate: new Date(2024, 8, 15), // September 15, 2024
+    hijriDate: "12 Rabi' al-Awwal 1446",
+    description: "Birth of Prophet Muhammad ﷺ",
+    importance: "major"
+  },
+  {
+    name: "Shab e-Barat",
+    gregorianDate: new Date(2024, 1, 25), // February 25, 2024
+    hijriDate: "15 Sha'ban 1445",
+    description: "Night of Fortune and Forgiveness",
+    importance: "minor"
+  },
+  {
+    name: "Isra and Mi'raj",
+    gregorianDate: new Date(2024, 0, 15), // January 15, 2024
+    hijriDate: "27 Rajab 1445",
+    description: "Night Journey and Ascension of Prophet Muhammad ﷺ",
+    importance: "minor"
   }
+];
+
+type CalendarViewProps = {
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+  events: typeof islamicEvents;
 };
 
-const IslamicCalendarModule: React.FC = () => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [calendarDate, setCalendarDate] = useState<Date>(new Date());
-  const [selectedDateEvents, setSelectedDateEvents] = useState<IslamicEvent[]>([]);
-  const [displayMode, setDisplayMode] = useState<"monthly" | "yearly">("monthly");
-  
-  const hijriDate = getApproximateHijriDate(date);
-  const formattedDate = format(date, 'yyyy-MM-dd');
-  
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
-      const newDate = selectedDate;
-      setDate(newDate);
-      const formattedSelectedDate = format(newDate, 'yyyy-MM-dd');
-      const events = getEventsForDate(formattedSelectedDate);
-      setSelectedDateEvents(events);
-    }
+// Component for Gregorian Calendar View
+const GregorianCalendarView: React.FC<CalendarViewProps> = ({ 
+  selectedDate, 
+  setSelectedDate,
+  events 
+}) => {
+  // Function to check if a date has an event
+  const dateHasEvent = (date: Date) => {
+    return events.some(event => 
+      event.gregorianDate.getDate() === date.getDate() &&
+      event.gregorianDate.getMonth() === date.getMonth() &&
+      event.gregorianDate.getFullYear() === date.getFullYear()
+    );
   };
-  
-  const nextMonth = () => {
-    setCalendarDate(addMonths(calendarDate, 1));
-  };
-  
-  const previousMonth = () => {
-    setCalendarDate(subMonths(calendarDate, 1));
+
+  // Function to get event for a specific date
+  const getEventForDate = (date: Date) => {
+    return events.find(event => 
+      event.gregorianDate.getDate() === date.getDate() &&
+      event.gregorianDate.getMonth() === date.getMonth() &&
+      event.gregorianDate.getFullYear() === date.getFullYear()
+    );
   };
 
   return (
-    <div className="min-h-screen bg-islamic-light-beige bg-islamic-pattern p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+    <div className="space-y-4">
+      <Calendar
+        mode="single"
+        selected={selectedDate}
+        onSelect={(date) => date && setSelectedDate(date)}
+        className="rounded-md border"
+        components={{
+          Day: ({ day, ...props }) => {
+            const isSelected = 
+              day.date.getDate() === selectedDate.getDate() &&
+              day.date.getMonth() === selectedDate.getMonth() &&
+              day.date.getFullYear() === selectedDate.getFullYear();
+              
+            const hasEvent = dateHasEvent(day.date);
+            const event = hasEvent ? getEventForDate(day.date) : null;
+            
+            return (
+              <div
+                {...props}
+                className={cn(
+                  props.className,
+                  "relative",
+                  isSelected && "bg-islamic-green text-white hover:bg-islamic-green hover:text-white",
+                  hasEvent && !isSelected && "bg-islamic-gold/20 font-semibold"
+                )}
+              >
+                {format(day.date, "d")}
+                {hasEvent && (
+                  <div 
+                    className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
+                      event?.importance === "major" ? "bg-islamic-green" : "bg-islamic-gold"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          }
+        }}
+      />
+      {/* Event details for selected date */}
+      <EventDetails selectedDate={selectedDate} events={events} />
+    </div>
+  );
+};
+
+// Component for Hijri Calendar View
+const HijriCalendarView: React.FC<CalendarViewProps> = ({ 
+  selectedDate, 
+  setSelectedDate,
+  events 
+}) => {
+  const hijriDate = convertToHijri(selectedDate);
+  
+  // Navigate through hijri months
+  const handlePreviousMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedDate(newDate);
+  };
+  
+  const handleNextMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedDate(newDate);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between p-2 bg-islamic-light-beige rounded-lg">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handlePreviousMonth}
+          className="flex items-center"
         >
-          <Card className="mb-8 border-islamic-warm-beige bg-white/90">
-            <CardHeader className="border-b border-islamic-warm-beige bg-gradient-to-r from-islamic-light-beige to-islamic-medium-beige">
-              <CardTitle className="text-islamic-text-brown text-2xl flex items-center">
-                <CalendarIcon className="w-6 h-6 mr-2 text-islamic-gold" />
-                Islamic Calendar
-              </CardTitle>
-              <CardDescription className="text-islamic-text-light-brown">
-                View Islamic dates, events and holidays
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <Tabs defaultValue="calendar" className="w-full">
-                <TabsList className="grid grid-cols-2 mb-6">
-                  <TabsTrigger value="calendar" className="text-islamic-text-brown">Calendar</TabsTrigger>
-                  <TabsTrigger value="events" className="text-islamic-text-brown">Upcoming Events</TabsTrigger>
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        
+        <div className="text-center">
+          <h3 className="font-semibold">{hijriDate.monthName} {hijriDate.year}</h3>
+          <p className="text-sm text-muted-foreground">
+            {format(selectedDate, "MMMM yyyy")} (Gregorian)
+          </p>
+        </div>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleNextMonth}
+          className="flex items-center"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+      
+      {/* Simplified Hijri calendar view */}
+      <div className="grid grid-cols-7 text-center gap-1">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+          <div key={day} className="p-2 font-medium text-sm bg-islamic-light-beige rounded">
+            {day}
+          </div>
+        ))}
+        {/* Generate month days */}
+        {Array.from({ length: 30 }, (_, i) => {
+          const dayNumber = i + 1;
+          const isSelectedDay = dayNumber === hijriDate.day;
+          
+          // Check for events on this day
+          const hasEvent = events.some(event => 
+            event.hijriDate.includes(`${dayNumber} ${hijriDate.monthName}`)
+          );
+          
+          return (
+            <div 
+              key={`hijri-day-${i}`} 
+              className={cn(
+                "p-3 rounded-md cursor-pointer transition-all",
+                isSelectedDay ? "bg-islamic-green text-white" : "hover:bg-islamic-light-beige",
+                hasEvent && !isSelectedDay && "bg-islamic-gold/20 font-semibold"
+              )}
+              onClick={() => {
+                // This is simplified - in reality, you'd need proper hijri-to-gregorian conversion
+                const newDate = new Date(selectedDate);
+                newDate.setDate(dayNumber);
+                setSelectedDate(newDate);
+              }}
+            >
+              {dayNumber}
+              {hasEvent && (
+                <div className="w-1.5 h-1.5 bg-islamic-gold rounded-full mx-auto mt-1" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* Event details for selected date */}
+      <EventDetails selectedDate={selectedDate} events={events} />
+    </div>
+  );
+};
+
+// Component for displaying event details
+const EventDetails: React.FC<{ selectedDate: Date, events: typeof islamicEvents }> = ({ 
+  selectedDate, 
+  events 
+}) => {
+  // Get events for the selected date
+  const eventsForDate = events.filter(event => 
+    event.gregorianDate.getDate() === selectedDate.getDate() &&
+    event.gregorianDate.getMonth() === selectedDate.getMonth() &&
+    event.gregorianDate.getFullYear() === selectedDate.getFullYear()
+  );
+  
+  if (eventsForDate.length === 0) {
+    const hijriDate = convertToHijri(selectedDate);
+    
+    return (
+      <div className="p-4 bg-islamic-light-beige bg-opacity-40 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold">{format(selectedDate, "EEEE, MMMM d, yyyy")}</h3>
+            <p className="text-sm text-muted-foreground">
+              {hijriDate.day} {hijriDate.monthName} {hijriDate.year} (Hijri)
+            </p>
+          </div>
+          <div className="flex space-x-2">
+            <Sun className="h-5 w-5 text-islamic-gold" />
+            <Moon className="h-5 w-5 text-islamic-dark-navy" />
+          </div>
+        </div>
+        <p className="mt-3 text-sm">No Islamic events on this date</p>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="space-y-3">
+      {eventsForDate.map((event, index) => (
+        <motion.div 
+          key={index}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-4 rounded-lg border ${
+            event.importance === "major" 
+              ? "bg-islamic-green/10 border-islamic-green" 
+              : "bg-islamic-gold/10 border-islamic-gold"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Star className={`h-5 w-5 ${
+                event.importance === "major" ? "text-islamic-green" : "text-islamic-gold"
+              } mr-2`} />
+              <h3 className="font-semibold">{event.name}</h3>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {event.hijriDate}
+            </div>
+          </div>
+          <p className="mt-2 text-sm">{event.description}</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+const IslamicCalendarModule: React.FC = () => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [calendarType, setCalendarType] = useState<"gregorian" | "hijri">("gregorian");
+  const [showUpcomingEvents, setShowUpcomingEvents] = useState(true);
+  
+  // Get upcoming events (next 30 days)
+  const upcomingEvents = islamicEvents
+    .filter(event => {
+      const today = new Date();
+      const eventDate = new Date(event.gregorianDate);
+      const differenceInDays = Math.floor((eventDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+      return differenceInDays >= 0 && differenceInDays <= 30;
+    })
+    .sort((a, b) => a.gregorianDate.getTime() - b.gregorianDate.getTime());
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto pb-24">
+      <div className="flex items-center mb-6">
+        <div className="bg-islamic-green rounded-xl p-3 mr-4">
+          <CalendarIcon className="h-8 w-8 text-white" />
+        </div>
+        <div className="text-left">
+          <h1 className="text-2xl font-bold">Islamic Calendar</h1>
+          <p className="text-sm text-gray-500">
+            Track Islamic dates and important events
+          </p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Card>
+            <CardContent className="pt-6">
+              <Tabs 
+                value={calendarType} 
+                onValueChange={(value) => setCalendarType(value as "gregorian" | "hijri")}
+                className="mb-4"
+              >
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="gregorian">Gregorian</TabsTrigger>
+                  <TabsTrigger value="hijri">Hijri</TabsTrigger>
                 </TabsList>
-                <TabsContent value="calendar" className="space-y-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-islamic-text-brown">
-                        {format(calendarDate, 'MMMM yyyy')}
-                      </h2>
-                      <p className="text-sm text-islamic-text-light-brown">
-                        {hijriMonths[hijriDate.month - 1]} {hijriDate.year} AH
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={previousMonth}
-                        className="border-islamic-warm-beige hover:bg-islamic-light-beige text-islamic-text-brown"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={nextMonth}
-                        className="border-islamic-warm-beige hover:bg-islamic-light-beige text-islamic-text-brown"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="rounded-md border border-islamic-warm-beige overflow-hidden">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={handleDateSelect}
-                      month={calendarDate}
-                      className="bg-white"
-                      classNames={{
-                        day_selected: "bg-islamic-gold text-white hover:bg-islamic-gold hover:text-white focus:bg-islamic-gold focus:text-white",
-                        day_today: "bg-islamic-light-beige text-islamic-text-brown border border-islamic-warm-beige",
-                        day: "hover:bg-islamic-light-beige hover:text-islamic-text-brown focus:bg-islamic-light-beige focus:text-islamic-text-brown"
-                      }}
-                      components={{
-                        day: ({ date, ...props }) => {
-                          const formattedDate = format(date, 'yyyy-MM-dd');
-                          const events = getEventsForDate(formattedDate);
-                          const hasEvent = events.length > 0;
-                          const eventType = hasEvent ? events[0].type : undefined;
-                          const isCurrentDay = isToday(date);
-                          
-                          return (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div 
-                                    className={cn(
-                                      "relative w-full h-full flex items-center justify-center",
-                                      isCurrentDay && "font-bold"
-                                    )}
-                                    {...props}
-                                  >
-                                    {hasEvent && (
-                                      <div 
-                                        className={cn(
-                                          "absolute top-0 right-0 w-2 h-2 rounded-full",
-                                          eventType === "major" ? "bg-islamic-gold" : 
-                                          eventType === "medium" ? "bg-islamic-green" : 
-                                          "bg-islamic-light-blue"
-                                        )}
-                                      ></div>
-                                    )}
-                                    {date.getDate()}
-                                  </div>
-                                </TooltipTrigger>
-                                {hasEvent && (
-                                  <TooltipContent className="p-2 max-w-xs">
-                                    <div className="space-y-1">
-                                      {events.map((event, index) => (
-                                        <div key={index}>
-                                          <p className="font-medium">{event.name}</p>
-                                          <p className="text-xs">{event.description}</p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </TooltipContent>
-                                )}
-                              </Tooltip>
-                            </TooltipProvider>
-                          );
-                        },
-                      }}
-                    />
-                  </div>
-                  
-                  {selectedDateEvents.length > 0 && (
-                    <Card className="border-islamic-warm-beige">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-islamic-text-brown text-lg">
-                          Events on {format(date, 'MMMM d, yyyy')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {selectedDateEvents.map((event, index) => (
-                            <div key={index} className="flex items-start gap-2">
-                              <Badge className={getEventColor(event.type)} variant="outline">
-                                {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                              </Badge>
-                              <div>
-                                <h4 className="font-medium text-islamic-text-brown">{event.name}</h4>
-                                <p className="text-sm text-islamic-text-light-brown">{event.description}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+
+                <TabsContent value="gregorian">
+                  <GregorianCalendarView 
+                    selectedDate={selectedDate} 
+                    setSelectedDate={setSelectedDate} 
+                    events={islamicEvents}
+                  />
                 </TabsContent>
-                
-                <TabsContent value="events" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-islamic-text-brown">Upcoming Islamic Events</h3>
-                    <div className="flex items-center text-xs text-islamic-text-light-brown gap-2">
-                      <div className="flex items-center gap-1">
-                        <span className="w-3 h-3 rounded-full bg-islamic-gold"></span>
-                        <span>Major</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="w-3 h-3 rounded-full bg-islamic-green"></span>
-                        <span>Medium</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="w-3 h-3 rounded-full bg-islamic-light-blue"></span>
-                        <span>Minor</span>
-                      </div>
-                    </div>
-                  </div>
-                  <ScrollArea className="h-[400px] rounded-md border border-islamic-warm-beige p-4 bg-white">
-                    <div className="space-y-4">
-                      {islamicEvents
-                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                        .map((event, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05, duration: 0.3 }}
-                            className="flex items-start gap-3 p-3 rounded-lg border border-islamic-warm-beige hover:bg-islamic-light-beige transition-colors"
-                          >
-                            <div className={cn(
-                              "w-12 h-12 rounded-md flex flex-col items-center justify-center",
-                              getEventColor(event.type)
-                            )}>
-                              <span className="text-xs">{format(new Date(event.date), 'MMM')}</span>
-                              <span className="text-lg font-bold">{format(new Date(event.date), 'd')}</span>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-medium text-islamic-text-brown">{event.name}</h4>
-                                <Badge variant="outline" className="text-xs text-islamic-text-light-brown border-islamic-warm-beige">
-                                  {format(new Date(event.date), 'yyyy')}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-islamic-text-light-brown mt-1">{event.description}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                    </div>
-                  </ScrollArea>
+
+                <TabsContent value="hijri">
+                  <HijriCalendarView 
+                    selectedDate={selectedDate} 
+                    setSelectedDate={setSelectedDate} 
+                    events={islamicEvents}
+                  />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
-          
-          <Card className="border-islamic-warm-beige bg-white/90">
-            <CardHeader className="border-b border-islamic-warm-beige bg-gradient-to-r from-islamic-light-beige to-islamic-medium-beige">
-              <CardTitle className="text-islamic-text-brown text-xl flex items-center">
-                <Info className="w-5 h-5 mr-2 text-islamic-gold" />
-                Islamic Calendar Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 text-islamic-text-brown">
-              <div className="space-y-4">
-                <p>
-                  The Islamic calendar (Hijri calendar) is a lunar calendar consisting of 12 months in a year of 354 or 355 days.
-                  It is used to determine Islamic holidays and rituals, such as the annual period of fasting and the proper time for the Hajj.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="font-medium mb-2 text-islamic-gold">Hijri Months</h3>
-                    <ol className="list-decimal list-inside space-y-1 text-sm text-islamic-text-light-brown">
-                      {hijriMonths.map((month, index) => (
-                        <li key={index}>{month}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-2 text-islamic-gold">Important Islamic Days</h3>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-islamic-text-light-brown">
-                      <li>Ramadan - Month of fasting</li>
-                      <li>Eid al-Fitr - Festival of breaking the fast</li>
-                      <li>Eid al-Adha - Festival of sacrifice</li>
-                      <li>Laylat al-Qadr - Night of Power</li>
-                      <li>Islamic New Year - First of Muharram</li>
-                      <li>Day of Ashura - 10th of Muharram</li>
-                      <li>Mawlid al-Nabi - Birthday of Prophet Muhammad (PBUH)</li>
-                    </ul>
-                  </div>
-                </div>
+        </div>
+
+        <div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Upcoming Events</h3>
               </div>
+              
+              {upcomingEvents.length === 0 ? (
+                <p className="text-sm text-center text-muted-foreground p-6">
+                  No upcoming Islamic events in the next 30 days
+                </p>
+              ) : (
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                  {upcomingEvents.map((event, index) => (
+                    <motion.div 
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`p-3 rounded-lg border ${
+                        event.importance === "major" 
+                          ? "border-islamic-green/30 bg-islamic-green/5" 
+                          : "border-islamic-gold/30 bg-islamic-gold/5"
+                      }`}
+                      onClick={() => setSelectedDate(new Date(event.gregorianDate))}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">{event.name}</h4>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-islamic-light-beige">
+                          {format(event.gregorianDate, "MMM d")}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {event.hijriDate}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

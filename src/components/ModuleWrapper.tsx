@@ -24,6 +24,7 @@ const TipDeveloperModule = lazy(() => import('@/modules/TipDeveloperModule'));
 const NamesOfAllahModule = lazy(() => import('@/modules/NamesOfAllahModule'));
 const IslamicCalendarModule = lazy(() => import('@/modules/IslamicCalendarModule'));
 const HadithSearchModule = lazy(() => import('@/modules/HadithSearchModule'));
+const HajjGuideModule = lazy(() => import('@/modules/HajjGuideModule'));
 
 // Default component for modules that aren't fully implemented yet
 const ComingSoonModule = () => (
@@ -35,6 +36,7 @@ const ComingSoonModule = () => (
   </div>
 );
 
+// Map of all modules to their components
 const moduleComponents: Record<ModuleType, React.ComponentType> = {
   home: () => null,
   quran: QuranModule,
@@ -57,10 +59,15 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   notifications: ComingSoonModule,
   share: ComingSoonModule,
   rate: ComingSoonModule,
-  hajjGuide: ComingSoonModule,
+  hajjGuide: HajjGuideModule,
   knowledgeTests: ComingSoonModule,
   namesOfAllah: NamesOfAllahModule,
-  islamicCalendar: IslamicCalendarModule
+  islamicCalendar: IslamicCalendarModule,
+  dailyReminder: ComingSoonModule,
+  zakatCalculator: ComingSoonModule,
+  makkahLive: ComingSoonModule,
+  prayerTracker: ComingSoonModule,
+  halalFinder: ComingSoonModule
 };
 
 export const ModuleWrapper: React.FC = () => {
