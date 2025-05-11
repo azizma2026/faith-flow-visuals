@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Refresh, Plus, Save, Volume2 } from "lucide-react";
+import { RefreshCw, Plus, Save, Volume2 } from "lucide-react";
 
 // Pre-defined Tasbeeh phrases
 const TASBEEH_PHRASES = [
@@ -195,7 +195,7 @@ const TasbeehModule: React.FC = () => {
                 className="rounded-full h-10 w-10 flex items-center justify-center border-islamic-warm-beige hover:bg-islamic-warm-beige"
                 onClick={handleReset}
               >
-                <Refresh className="h-5 w-5 text-islamic-text-brown" />
+                <RefreshCw className="h-5 w-5 text-islamic-text-brown" />
               </Button>
               
               <span className="text-2xl font-medium text-islamic-text-brown">

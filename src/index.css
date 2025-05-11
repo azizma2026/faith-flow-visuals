@@ -1,238 +1,94 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Adding Arabic font for prayer times */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
+
+/* Quran styling */
+.quran-arabic-text {
+  line-height: 2;
+  letter-spacing: 0.03em;
+  font-family: 'Scheherazade New', 'Noto Naskh Arabic', serif;
+}
+
+.mosque-silhouette-bg {
+  background-color: #f8f4ea;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='80' viewBox='0 0 200 80'%3E%3Cpath d='M10,80 L10,60 L20,60 L20,80 L30,80 L30,50 L40,40 L50,50 L50,80 L60,80 L60,70 L65,70 L65,80 L75,80 L75,70 L80,60 L85,70 L85,80 L95,80 L95,60 L100,50 L105,60 L105,80 L115,80 L115,70 L120,70 L120,80 L130,80 L130,60 L140,60 L140,80 L150,80 L150,50 L160,40 L170,50 L170,80 L180,80 L180,60 L190,60 L190,80 Z' fill='%23d5c7a9' fill-opacity='0.4'/%3E%3C/svg%3E");
+  background-position: bottom;
+  background-repeat: repeat-x;
+}
+
+/* Islamic Patterns and Decorations */
+.islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23d5c7a9' fill-opacity='0.4'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0l28-28v2L54 40h-2zm4 0l24-24v2L58 40h-2zm4 0l20-20v2L62 40h-2zm4 0l16-16v2L66 40h-2zm4 0l12-12v2L70 40h-2zm4 0l8-8v2l-6 6h-2zm4 0l4-4v2l-2 2h-2z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 30 15% 20%;
-
-    --card: 40 30% 96%;
-    --card-foreground: 30 15% 20%;
-
-    --popover: 40 30% 96%;
-    --popover-foreground: 30 15% 20%;
-
-    --primary: 170 55% 26%; /* Islamic green */
-    --primary-foreground: 42 77% 48%; /* Gold for primary text */
-
-    --secondary: 40 30% 92%;
-    --secondary-foreground: 30 15% 25%;
-
-    --muted: 37 46% 91%;
-    --muted-foreground: 30 10% 40%;
-
-    --accent: 42 77% 48%; /* Gold accent */
-    --accent-foreground: 30 15% 20%;
-
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --primary: 24.6 95% 53.1%;
+    --primary-foreground: 60 9.1% 97.8%;
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 40 20% 80%;
-    --input: 40 20% 80%;
-    --ring: 30 15% 20%;
-
-    --radius: 0.75rem; /* Slightly more rounded */
-
-    --sidebar-background: 40 33% 98%;
-    --sidebar-foreground: 30 15% 30%;
-    --sidebar-primary: 30 15% 15%;
-    --sidebar-primary-foreground: 40 33% 98%;
-    --sidebar-accent: 40 30% 90%;
-    --sidebar-accent-foreground: 30 15% 15%;
-    --sidebar-border: 40 20% 80%;
-    --sidebar-ring: 170 55% 26%;
-  }
-
-  .dark {
-    --background: 222 38% 11%;
-    --foreground: 37 21% 91%;
-
-    --card: 222.2 47% 11%;
-    --card-foreground: 37 21% 91%;
-
-    --popover: 222.2 47% 11%;
-    --popover-foreground: 37 21% 91%;
-
-    --primary: 170 50% 22%;
-    --primary-foreground: 42 77% 48%;
-
-    --secondary: 210 40% 16%;
-    --secondary-foreground: 37 21% 91%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 42 77% 48%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 42 77% 48%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --ring: 24.6 95% 53.1%;
+    --radius: 0.75rem;
+    
+    /* Sidebar Colors */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 214.3 31.8% 91.4%;
+    --sidebar-accent-foreground: 217.2 91.2% 49.8%;
+    --sidebar-border: 216 34% 17%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /* High Contrast Mode */
-  .high-contrast {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 60 100% 50%; /* Bright yellow for maximum contrast */
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 0%;
-    --secondary-foreground: 60 100% 50%;
-
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 100%;
-
-    --accent: 60 100% 50%;
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 0 0% 0%;
-
-    --border: 0 0% 100%;
-    --input: 0 0% 100%;
-    --ring: 60 100% 50%;
-  }
-}
-
-@layer utilities {
-  .islamic-pattern-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231D645D' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-  
-  .mosque-silhouette-bg {
-    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3ClinearGradient id='a' gradientUnits='userSpaceOnUse' x1='600' y1='25' x2='600' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' gradientUnits='userSpaceOnUse' x1='650' y1='25' x2='650' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='c' gradientUnits='userSpaceOnUse' x1='700' y1='25' x2='700' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='d' gradientUnits='userSpaceOnUse' x1='750' y1='25' x2='750' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='e' gradientUnits='userSpaceOnUse' x1='800' y1='25' x2='800' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='f' gradientUnits='userSpaceOnUse' x1='850' y1='25' x2='850' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='900' y1='25' x2='900' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='h' gradientUnits='userSpaceOnUse' x1='950' y1='25' x2='950' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='i' gradientUnits='userSpaceOnUse' x1='1000' y1='25' x2='1000' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='j' gradientUnits='userSpaceOnUse' x1='1050' y1='25' x2='1050' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='k' gradientUnits='userSpaceOnUse' x1='1100' y1='25' x2='1100' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3ClinearGradient id='l' gradientUnits='userSpaceOnUse' x1='1150' y1='25' x2='1150' y2='777'%3E%3Cstop offset='0' stop-color='%23E2D1C3'/%3E%3Cstop offset='1' stop-color='%231D645D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill-opacity='0.1'%3E%3Crect fill='url(%23a)' width='1200' height='800'/%3E%3Crect fill='url(%23b)' x='100' width='1100' height='800'/%3E%3Crect fill='url(%23c)' x='200' width='1000' height='800'/%3E%3Crect fill='url(%23d)' x='300' width='900' height='800'/%3E%3Crect fill='url(%23e)' x='400' width='800' height='800'/%3E%3Crect fill='url(%23f)' x='500' width='700' height='800'/%3E%3Crect fill='url(%23g)' x='600' width='600' height='800'/%3E%3Crect fill='url(%23h)' x='700' width='500' height='800'/%3E%3Crect fill='url(%23i)' x='800' width='400' height='800'/%3E%3Crect fill='url(%23j)' x='900' width='300' height='800'/%3E%3Crect fill='url(%23k)' x='1000' width='200' height='800'/%3E%3Crect fill='url(%23l)' x='1100' width='100' height='800'/%3E%3C/g%3E%3Cg fill-opacity='0.08'%3E%3Crect fill='url(%23a)' width='1200' height='800'/%3E%3Crect fill='url(%23b)' x='100' width='1100' height='800'/%3E%3Crect fill='url(%23c)' x='200' width='1000' height='800'/%3E%3Crect fill='url(%23d)' x='300' width='900' height='800'/%3E%3Crect fill='url(%23e)' x='400' width='800' height='800'/%3E%3Crect fill='url(%23f)' x='500' width='700' height='800'/%3E%3Crect fill='url(%23g)' x='600' width='600' height='800'/%3E%3Crect fill='url(%23h)' x='700' width='500' height='800'/%3E%3Crect fill='url(%23i)' x='800' width='400' height='800'/%3E%3Crect fill='url(%23j)' x='900' width='300' height='800'/%3E%3Crect fill='url(%23k)' x='1000' width='200' height='800'/%3E%3Crect fill='url(%23l)' x='1100' width='100' height='800'/%3E%3C/g%3E%3Cpath d='M30,650 L60,680 L90,680 L120,680 L150,680 L180,680 L210,680 L240,680 L270,680 L300,680 L330,680 L360,680 L390,680 L420,680 L450,680 L480,680 L510,680 L540,680 L570,680 L600,680 L630,680 L660,680 L690,680 L720,680 L750,680 L780,680 L810,680 L840,680 L870,650 L900,650 L930,650 L960,680 L990,680 L1020,680 L1050,680 L1080,680 L1110,650 L1140,650 L1170,650 L1200,680 L1200,800 L0,800 L0,680 Z' fill='%231D645D' fill-opacity='0.2'/%3E%3C/svg%3E");
-    background-attachment: fixed;
-    background-size: cover;
-  }
-
-  .prayer-countdown {
-    @apply bg-gradient-to-r from-islamic-green/80 to-islamic-blue/80 text-white rounded-lg shadow-lg;
-  }
-
-  .feature-icon {
-    @apply bg-gradient-to-br from-white to-islamic-beige rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out border border-islamic-sand overflow-hidden hover:scale-105;
-  }
-
-  .islamic-gold-text {
-    @apply text-islamic-gold font-semibold;
-  }
-
-  quran-verse-container {
-    @apply bg-islamic-light-beige p-5 rounded-lg border border-islamic-warm-beige my-4 relative overflow-hidden;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-  }
-  
-  .quran-verse-container::before,
-  .quran-verse-container::after {
-    content: "";
-    position: absolute;
-    height: 10px;
-    left: 0;
-    right: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='10' viewBox='0 0 80 10'%3E%3Cpath d='M0,10 L10,0 L20,10 L30,0 L40,10 L50,0 L60,10 L70,0 L80,10 L80,0 L0,0 L0,10 Z' fill='%23d5c7a9' fill-opacity='0.4'/%3E%3C/svg%3E");
-  }
-  
-  .quran-verse-container::before {
-    top: 0;
-  }
-  
-  .quran-verse-container::after {
-    bottom: 0;
-    transform: rotate(180deg);
-  }
-
-  .quran-arabic-text {
-    color: #564F47;
-    text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1);
-  }
-  
-  .surah-header {
-    @apply bg-islamic-medium-beige text-islamic-text-brown text-center py-4 px-6 mb-6 rounded-lg border border-islamic-warm-beige relative overflow-hidden;
-  }
-  
-  .surah-header::before,
-  .surah-header::after {
-    content: "";
-    position: absolute;
-    height: 15px;
-    left: 0;
-    right: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='15' viewBox='0 0 100 15'%3E%3Cpath d='M0,0 C10,10 20,15 30,15 C40,15 50,10 60,5 C70,0 80,0 90,5 C100,10 100,15 100,15 L100,0 L0,0 L0,0 Z' fill='%238A7356' fill-opacity='0.2'/%3E%3C/svg%3E");
-  }
-  
-  .surah-header::before {
-    top: 0;
-  }
-  
-  .surah-header::after {
-    bottom: 0;
-    transform: rotate(180deg);
-  }
-
-  @keyframes gentle-pulse {
-    0% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.03); }
-    100% { opacity: 0.8; transform: scale(1); }
-  }
-
-  .pulse-animation {
-    animation: gentle-pulse 3s infinite ease-in-out;
-  }
-  
-  /* Font size utilities for accessibility */
-  .text-size-normal {
-    font-size: 1rem;
-  }
-  
-  .text-size-large {
-    font-size: 1.25rem;
-  }
-  
-  .text-size-x-large {
-    font-size: 1.5rem;
-  }
-  
-  /* Focus indicators for keyboard navigation */
-  .focus-visible:focus-visible {
-    @apply outline-2 outline-offset-2 outline-islamic-gold;
-  }
-  
-  /* Skip to content link for screen readers */
-  .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-islamic-gold focus:rounded-md;
-  }
-  
-  /* Mosque-themed styles */
-  .mosque-bg {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50 0 L90 40 L80 40 L80 100 L20 100 L20 40 L10 40 Z' fill='%23564f47' fill-opacity='0.2'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-  }
-  
-  .font-arabic {
-    font-family: 'Scheherazade New', 'Amiri', serif;
-    direction: rtl;
-    letter-spacing: 0.02em;
-    line-height: 1.8;
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 60 9.1% 97.8%;
+    --card: 20 14.3% 4.1%;
+    --card-foreground: 60 9.1% 97.8%;
+    --popover: 20 14.3% 4.1%;
+    --popover-foreground: 60 9.1% 97.8%;
+    --primary: 20.5 90.2% 48.2%;
+    --primary-foreground: 60 9.1% 97.8%;
+    --secondary: 12 6.5% 15.1%;
+    --secondary-foreground: 60 9.1% 97.8%;
+    --muted: 12 6.5% 15.1%;
+    --muted-foreground: 24 5.4% 63.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 60 9.1% 97.8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 12 6.5% 15.1%;
+    --input: 12 6.5% 15.1%;
+    --ring: 20.5 90.2% 48.2%;
+    
+    /* Sidebar Colors Dark Mode */
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.2 91.2% 29.8%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -240,71 +96,39 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
-  }
-  
-  /* Accessibility improvements */
-  a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]) {
-    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-islamic-gold;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Font size modifier classes based on accessibility settings */
-.font-size-normal {
+/* Custom animation for prayer time displays */
+.animate-prayer-pulse {
+  animation: prayer-pulse 2s ease-in-out infinite;
+}
+
+@keyframes prayer-pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.7; 
+  }
+}
+
+/* Adjust font size based on accessibility settings */
+.font-size-small {
+  font-size: 0.9rem;
+}
+
+.font-size-medium {
   font-size: 1rem;
-  line-height: 1.5;
 }
 
 .font-size-large {
-  font-size: 1.25rem;
-  line-height: 1.6;
+  font-size: 1.2rem;
 }
 
-.font-size-x-large {
-  font-size: 1.5rem;
-  line-height: 1.7;
-}
-
-/* High contrast specific overrides */
-.high-contrast button {
-  @apply border-2 border-white;
-}
-
-.high-contrast a {
-  @apply underline;
-}
-
-.high-contrast input, .high-contrast select, .high-contrast textarea {
-  @apply border-2 border-white bg-black text-white;
-}
-
-.high-contrast .feature-icon {
-  @apply bg-black border-white;
-}
-
-.high-contrast .prayer-countdown {
-  @apply bg-black border-2 border-white;
-}
-
-/* Adding Arabic font for prayer times */
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap');
-
-/* Quran styling */
-.surah-bismillah {
-  @apply text-center text-islamic-text-brown italic mb-8 text-lg;
-}
-
-.ayah-number {
-  @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-islamic-warm-beige/40 text-islamic-text-brown mx-2 text-sm;
-}
-
-.quran-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #F8F4EA;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+.font-size-extra-large {
+  font-size: 1.4rem;
 }
