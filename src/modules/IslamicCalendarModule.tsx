@@ -147,7 +147,8 @@ const GregorianCalendarView: React.FC<CalendarViewProps> = ({
         onSelect={(date) => date && setSelectedDate(date)}
         className="rounded-md border"
         components={{
-          Day: ({ date, ...props }) => {
+          Day: (props: any) => {
+            const date = props.date;
             const isSelected = 
               date.getDate() === selectedDate.getDate() &&
               date.getMonth() === selectedDate.getMonth() &&
