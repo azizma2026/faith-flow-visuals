@@ -1,8 +1,9 @@
 
 import React, { Suspense, lazy } from 'react';
 import { useNavigationStore, ModuleType } from '@/stores/navigationStore';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import BreadcrumbNav from './BreadcrumbNav';
+import BottomNav from './BottomNav';
 
 // Lazy load heavy components
 const QuranModule = lazy(() => import('@/modules/QuranModule'));
@@ -79,37 +80,46 @@ export const ModuleWrapper: React.FC = () => {
   const ActiveModuleComponent = moduleComponents[activeModule];
 
   return (
-    <motion.div
-      className="fixed inset-0 z-50 bg-white dark:bg-islamic-dark-navy overflow-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.3 }}
-    >
-      {/* Add breadcrumbs at the top */}
-      <div className="sticky top-0 z-10 p-2">
-        <BreadcrumbNav />
-      </div>
-      
-      <Suspense fallback={
-        <div className="flex items-center justify-center h-screen bg-islamic-light-beige bg-islamic-pattern">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green"></div>
-        </div>
-      }>
-        <ActiveModuleComponent />
-      </Suspense>
-      
-      <motion.button
-        onClick={goBack}
-        className="fixed top-4 left-4 z-50 bg-islamic-gold text-white p-2 rounded-full shadow-md"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={activeModule}
+        className="fixed inset-0 z-50 bg-white dark:bg-islamic-dark-navy overflow-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 12H5m7 7-7-7 7-7" />
-        </svg>
-      </motion.button>
-    </motion.div>
+        {/* Add breadcrumbs at the top */}
+        <div className="sticky top-0 z-10 p-2">
+          <BreadcrumbNav />
+        </div>
+        
+        <div className="pb-16"> {/* Add padding to account for bottom nav */}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-screen bg-islamic-light-beige bg-islamic-pattern">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-islamic-green"></div>
+            </div>
+          }>
+            <ActiveModuleComponent />
+          </Suspense>
+        </div>
+        
+        {/* Back button with more accessible positioning */}
+        <motion.button
+          onClick={goBack}
+          className="fixed top-4 left-4 z-50 bg-islamic-gold text-white p-2 rounded-full shadow-md"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5m7 7-7-7 7-7" />
+          </svg>
+        </motion.button>
+        
+        {/* Add bottom navigation */}
+        <BottomNav />
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

@@ -33,18 +33,31 @@ export type ModuleType =
   | 'prayerTracker'
   | 'halalFinder';
 
+// Define module groups for organization
+export const moduleGroups = {
+  core: ['quran', 'prayerTimes', 'qibla', 'tasbeeh'] as ModuleType[],
+  knowledge: ['hadith', 'islamicCalendar', 'namesOfAllah'] as ModuleType[],
+  utility: ['duas', 'salahGuide', 'hajjGuide'] as ModuleType[],
+  social: ['channels', 'sadqaJaria'] as ModuleType[]
+};
+
 export interface NavigationState {
   activeModule: ModuleType;
   navigationHistory: ModuleType[];
+  previousModule: ModuleType | null;
   setActiveModule: (module: ModuleType) => void;
   goBack: () => void;
+  goTo: (module: ModuleType) => void;
   resetNavigation: () => void;
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
   activeModule: 'home',
   navigationHistory: [],
+  previousModule: null,
+  
   setActiveModule: (module) => set((state) => {
+    // Don't update if navigating to the same module
     if (state.activeModule === module) return state;
     
     // Add current module to history if navigating away from home
@@ -54,12 +67,18 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     
     return {
       activeModule: module,
-      navigationHistory: newHistory
+      navigationHistory: newHistory,
+      previousModule: state.activeModule
     };
   }),
+  
   goBack: () => set((state) => {
     if (state.navigationHistory.length === 0) {
-      return { activeModule: 'home', navigationHistory: [] };
+      return { 
+        activeModule: 'home', 
+        navigationHistory: [],
+        previousModule: state.activeModule
+      };
     }
     
     // Pop the last item as the current module
@@ -68,8 +87,23 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     
     return {
       activeModule: previousModule,
-      navigationHistory: newHistory
+      navigationHistory: newHistory,
+      previousModule: state.activeModule
     };
   }),
-  resetNavigation: () => set({ activeModule: 'home', navigationHistory: [] })
+  
+  goTo: (module) => set((state) => {
+    // Clear history and go directly to the specified module
+    return {
+      activeModule: module,
+      navigationHistory: [],
+      previousModule: state.activeModule
+    };
+  }),
+  
+  resetNavigation: () => set({ 
+    activeModule: 'home', 
+    navigationHistory: [],
+    previousModule: null
+  })
 }));
