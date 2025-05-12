@@ -6,8 +6,8 @@ import {
   BookOpen, 
   Clock, 
   Compass, 
-  Home,
-  Settings
+  Heart, 
+  Home 
 } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
@@ -18,7 +18,7 @@ const BottomNav: React.FC = () => {
     { id: 'quran' as ModuleType, icon: BookOpen, label: 'Quran' },
     { id: 'prayerTimes' as ModuleType, icon: Clock, label: 'Prayer' },
     { id: 'qibla' as ModuleType, icon: Compass, label: 'Qibla' },
-    { id: 'settings' as ModuleType, icon: Settings, label: 'Settings' },
+    { id: 'tasbeeh' as ModuleType, icon: Heart, label: 'Tasbeeh' },
   ];
 
   return (
@@ -38,6 +38,7 @@ const BottomNav: React.FC = () => {
                 ? 'text-islamic-gold' 
                 : 'text-gray-600 dark:text-gray-300'
             }`}
+            aria-label={`Navigate to ${item.label}`}
           >
             <item.icon className="h-5 w-5 mb-1" />
             <span>{item.label}</span>
