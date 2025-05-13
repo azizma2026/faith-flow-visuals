@@ -7,6 +7,7 @@ export type ModuleType =
   | 'prayerTimes'
   | 'qibla'
   | 'hadith'
+  | 'hadithCollection'
   | 'tasbeeh'
   | 'duas'
   | 'channels'
@@ -36,7 +37,7 @@ export type ModuleType =
 // Define module groups for organization
 export const moduleGroups = {
   core: ['quran', 'prayerTimes', 'qibla', 'tasbeeh'] as ModuleType[],
-  knowledge: ['hadith', 'islamicCalendar', 'namesOfAllah'] as ModuleType[],
+  knowledge: ['hadith', 'hadithCollection', 'islamicCalendar', 'namesOfAllah'] as ModuleType[],
   utility: ['duas', 'salahGuide', 'hajjGuide'] as ModuleType[],
   social: ['channels', 'sadqaJaria'] as ModuleType[]
 };

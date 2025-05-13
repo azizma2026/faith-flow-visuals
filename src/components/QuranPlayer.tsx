@@ -9,39 +9,16 @@ import {
 } from "@/api/quranClient";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
-import { BookmarkIcon, Loader2, RefreshCw, AlertCircle, ChevronDown } from "lucide-react";
+import { BookmarkIcon, Loader2, RefreshCw, AlertCircle, ChevronDown, BookOpen } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { isWordDataAvailable } from "@/api/quranWordsClient";
 import QuranWordTranslation from "./QuranWordTranslation";
 import QuranTagging from "./QuranTagging";
 import DailyReadingSchedule from "./DailyReadingSchedule";
-
-// Mock word-by-word data (in a real app, this would come from an API)
-const mockWordData = [
-  {
-    arabic: "بِسْمِ",
-    transliteration: "Bismi",
-    translation: "In the name"
-  },
-  {
-    arabic: "اللَّهِ",
-    transliteration: "Allahi",
-    translation: "of Allah"
-  },
-  {
-    arabic: "الرَّحْمَٰنِ",
-    transliteration: "Ar-Rahmani",
-    translation: "the Most Gracious"
-  },
-  {
-    arabic: "الرَّحِيمِ",
-    transliteration: "Ar-Rahimi",
-    translation: "the Most Merciful"
-  }
-];
 
 interface QuranPlayerProps {
   surahNumber: number;
@@ -83,6 +60,9 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
 
   const currentAyah = surahData?.ayahs[ayahIndex];
   
+  // Check if word-by-word data is available for this surah
+  const wordDataAvailable = isWordDataAvailable(surahNumber);
+  
   // Primary audio URL
   const audioUrl = currentAyah ? getAudioUrl(reciterId, surahNumber, currentAyah.numberInSurah) : "";
   
@@ -99,14 +79,12 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
   
   useEffect(() => {
     if (jumpToAyah && surahData && jumpToAyah <= surahData.ayahs.length) {
-      
       const targetIndex = surahData.ayahs.findIndex(a => a.numberInSurah === jumpToAyah);
       if (targetIndex !== -1) {
         setAyahIndex(targetIndex);
       }
     }
   }, [jumpToAyah, surahData]);
-
   
   useEffect(() => {
     if (currentAyah) {
@@ -114,14 +92,12 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
       setBookmarked(isBookmarked);
     }
   }, [currentAyah, surahNumber, isAyahBookmarked]);
-
   
   useEffect(() => {
     if (onAyahChange && currentAyah) {
       onAyahChange(ayahIndex);
     }
   }, [ayahIndex, onAyahChange, currentAyah]);
-
   
   const handleAudioPlay = (url: string = audioUrl) => {
     if (!url) return;
@@ -201,7 +177,6 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
 
   if (isLoading) return <p>Loading Surah...</p>;
   if (isError || !surahData) return <p>Failed to load Surah data.</p>;
-
   
   // Safely convert fontSize to a number
   const fontSizeValue = typeof fontSize === 'number' ? fontSize : 0;
@@ -257,19 +232,25 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full flex justify-between items-center mb-2 text-muted-foreground"
+                  className={`w-full flex justify-between items-center mb-2 ${wordDataAvailable ? 'text-islamic-green' : 'text-muted-foreground opacity-70'}`}
+                  disabled={!wordDataAvailable}
                 >
-                  <span>Word-by-Word Translation</span>
+                  <span className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Word-by-Word Translation
+                  </span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${showWordTranslation ? "rotate-180" : ""}`} />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                {/* In a real app, this would use actual word data from API */}
-                <QuranWordTranslation 
-                  arabicText={currentAyah?.text || ""}
-                  words={mockWordData}
-                  className={arabicTextSizeClass}
-                />
+                {currentAyah && (
+                  <QuranWordTranslation 
+                    arabicText={currentAyah.text}
+                    surahNumber={surahNumber}
+                    ayahNumber={currentAyah.numberInSurah}
+                    className={arabicTextSizeClass}
+                  />
+                )}
               </CollapsibleContent>
             </Collapsible>
 
@@ -429,9 +410,11 @@ export const QuranPlayer: React.FC<QuranPlayerProps> = ({
                   checked={showWordTranslation}
                   onChange={(e) => setShowWordTranslation(e.target.checked)}
                   className="mr-2"
+                  disabled={!wordDataAvailable}
                 />
-                <label htmlFor="word-translation-toggle">
+                <label htmlFor="word-translation-toggle" className={!wordDataAvailable ? "opacity-70" : ""}>
                   Show word-by-word translation
+                  {!wordDataAvailable && <span className="text-xs text-muted-foreground ml-2">(Not available for this surah)</span>}
                 </label>
               </div>
             </div>

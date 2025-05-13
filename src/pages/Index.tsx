@@ -78,7 +78,8 @@ const appFeatures = [
   {
     category: "Knowledge & Community",
     modules: [
-      { id: "hadith" as ModuleType, name: "Hadith Collection", icon: BookOpen },
+      { id: "hadith" as ModuleType, name: "Hadith Search", icon: BookOpen },
+      { id: "hadithCollection" as ModuleType, name: "Hadith Collection", icon: Book },
       { id: "islamicCalendar" as ModuleType, name: "Islamic Calendar", icon: Calendar },
       { id: "namesOfAllah" as ModuleType, name: "Names of Allah", icon: Star },
       { id: "channels" as ModuleType, name: "Islamic Channels", icon: Calendar },

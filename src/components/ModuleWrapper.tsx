@@ -26,6 +26,7 @@ const NamesOfAllahModule = lazy(() => import('@/modules/NamesOfAllahModule'));
 const IslamicCalendarModule = lazy(() => import('@/modules/IslamicCalendarModule'));
 const HadithSearchModule = lazy(() => import('@/modules/HadithSearchModule'));
 const HajjGuideModule = lazy(() => import('@/modules/HajjGuideModule'));
+const HadithCollectionModule = lazy(() => import('@/modules/HadithCollectionModule'));
 
 // Default component for modules that aren't fully implemented yet
 const ComingSoonModule = () => (
@@ -44,6 +45,7 @@ const moduleComponents: Record<ModuleType, React.ComponentType> = {
   prayerTimes: PrayerTimesModule,
   qibla: QiblaModule,
   hadith: HadithSearchModule,
+  hadithCollection: HadithCollectionModule,
   tasbeeh: TasbeehModule,
   duas: DuasModule,
   channels: ChannelsModule,
