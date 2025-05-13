@@ -51,7 +51,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-islamic-gold to-islamic-dark-gold overflow-hidden" dir={currentLanguage.direction}>
+    <div className="min-h-screen bg-gradient-to-b from-islamic-green to-islamic-dark-green overflow-hidden" dir={currentLanguage.direction}>
       {/* Mosque silhouette background */}
       <MosqueBackground />
       
@@ -72,11 +72,11 @@ const Index = () => {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleModuleSelect(feature.module)}
             >
-              <Card className="w-full aspect-square rounded-3xl overflow-hidden bg-white shadow-lg">
+              <Card className="w-full aspect-square rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm shadow-lg">
                 <CardContent className="p-4 flex items-center justify-center h-full">
                   {/* If we have actual icons, use them, otherwise use placeholder */}
                   <div className="w-12 h-12 rounded-full bg-islamic-light-beige flex items-center justify-center">
-                    <span className="text-2xl text-islamic-dark-gold">{feature.name.charAt(0)}</span>
+                    <span className="text-2xl text-islamic-dark-green">{feature.name.charAt(0)}</span>
                   </div>
                 </CardContent>
               </Card>

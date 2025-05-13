@@ -35,7 +35,7 @@ const BottomNav: React.FC = () => {
             onClick={() => setActiveModule(item.id)}
             className={`flex flex-col items-center justify-center w-full h-full text-xs ${
               activeModule === item.id 
-                ? 'text-islamic-gold' 
+                ? 'text-islamic-green' 
                 : 'text-gray-600'
             }`}
             aria-label={`Navigate to ${item.label}`}
@@ -45,7 +45,7 @@ const BottomNav: React.FC = () => {
             
             {activeModule === item.id && (
               <motion.div 
-                className="absolute bottom-0 w-12 h-0.5 bg-islamic-gold rounded-t-md"
+                className="absolute bottom-0 w-12 h-0.5 bg-islamic-green rounded-t-md"
                 layoutId="bottomNavIndicator"
               />
             )}
