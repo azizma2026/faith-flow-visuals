@@ -14,16 +14,16 @@ const BottomNav: React.FC = () => {
   const { activeModule, setActiveModule } = useNavigationStore();
   
   const navItems = [
-    { id: 'home' as ModuleType, icon: Home, label: 'Home' },
-    { id: 'quran' as ModuleType, icon: BookOpen, label: 'Quran' },
-    { id: 'prayerTimes' as ModuleType, icon: Clock, label: 'Prayer' },
-    { id: 'qibla' as ModuleType, icon: Compass, label: 'Qibla' },
-    { id: 'tasbeeh' as ModuleType, icon: Heart, label: 'Tasbeeh' },
+    { id: 'home' as ModuleType, icon: Home, label: 'الرئيسية' },
+    { id: 'quran' as ModuleType, icon: BookOpen, label: 'القرآن' },
+    { id: 'prayerTimes' as ModuleType, icon: Clock, label: 'الصلاة' },
+    { id: 'qibla' as ModuleType, icon: Compass, label: 'القبلة' },
+    { id: 'tasbeeh' as ModuleType, icon: Heart, label: 'الأذكار' },
   ];
 
   return (
     <motion.div 
-      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-islamic-dark-navy border-t border-gray-200 dark:border-islamic-dark-navy/50 shadow-lg z-50"
+      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 rounded-t-3xl"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ delay: 0.2 }}
@@ -36,12 +36,12 @@ const BottomNav: React.FC = () => {
             className={`flex flex-col items-center justify-center w-full h-full text-xs ${
               activeModule === item.id 
                 ? 'text-islamic-gold' 
-                : 'text-gray-600 dark:text-gray-300'
+                : 'text-gray-600'
             }`}
             aria-label={`Navigate to ${item.label}`}
           >
             <item.icon className="h-5 w-5 mb-1" />
-            <span>{item.label}</span>
+            <span className="font-arabic">{item.label}</span>
             
             {activeModule === item.id && (
               <motion.div 

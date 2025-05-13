@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -131,4 +130,28 @@
 
 .font-size-extra-large {
   font-size: 1.4rem;
+}
+
+/* Adding orange gradient background */
+.orange-islamic-gradient {
+  background: linear-gradient(to bottom, #EA8119, #D35400);
+}
+
+/* Islamic app icon styling */
+.islamic-app-icon {
+  @apply bg-white rounded-3xl shadow-lg flex items-center justify-center aspect-square;
+}
+
+/* Prayer time countdown styling */
+.prayer-countdown {
+  @apply text-7xl font-bold tracking-wider text-white text-center;
+}
+
+.prayer-name {
+  @apply text-2xl font-arabic mb-2 text-white text-center;
+}
+
+/* Enhanced mosque silhouette background */
+.enhanced-mosque-silhouette {
+  background-color: rgba(211, 84, 0, 0.8);
 }

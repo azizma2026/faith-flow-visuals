@@ -1,4 +1,3 @@
-
 import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
@@ -45,8 +44,8 @@ export default {
         'islamic-green': '#1D8A4A',
         'islamic-dark-green': '#0D6F3A',
         'islamic-light-green': '#ABD9C2',
-        'islamic-gold': '#D4AF37',
-        'islamic-dark-gold': '#B8881D',
+        'islamic-gold': '#EA8119', // Updated to match the image
+        'islamic-dark-gold': '#D35400', // Darker orange for gradient
         'islamic-light-gold': '#F4EBD0',
         'islamic-text-brown': '#5D4037',
         'islamic-text-light-brown': '#8D6E63',
@@ -54,11 +53,15 @@ export default {
         'islamic-light-beige': '#F8F4EA',
         'islamic-medium-beige': '#E8E0D0',
         'islamic-warm-beige': '#D5C7A9',
+        'islamic-orange': '#FF7417', // Bright orange from the image
+        'islamic-orange-light': '#FFA259', // Lighter orange for highlights
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        // Adding custom border radius for app icons
+        '3xl': '1.5rem',
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
